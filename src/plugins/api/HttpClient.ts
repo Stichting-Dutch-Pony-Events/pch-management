@@ -1,3 +1,3 @@
 export class HttpClient {
-    public constructor(baseUrl: string) {}
+    public constructor(public baseUrl: string) {}
 }

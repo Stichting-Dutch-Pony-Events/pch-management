@@ -5,14 +5,17 @@
  */
 
 // Plugins
-import vuetify from './vuetify'
-import router from '../router'
+import vuetify from "./vuetify"
+import router from "../router"
+import createStore from "./pinia"
 
 // Types
-import type { App } from 'vue'
+import type { App } from "vue"
+import { createPchApi } from "@/plugins/api/pch-api.plugin"
 
-export function registerPlugins (app: App) {
-  app
-    .use(vuetify)
-    .use(router)
+export function registerPlugins(app: App) {
+    const store = createStore(router)
+    const pchApi = createPchApi()
+
+    app.use(vuetify).use(router).use(store).use(pchApi)
 }

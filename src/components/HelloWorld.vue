@@ -115,11 +115,13 @@
     </v-container>
 </template>
 
-<script lang="ts">
-export default {
-    name: "HelloWorld",
-    setup() {
-        console.log(import.meta.env.VITE_API_URL)
-    },
-}
+<script lang="ts" setup>
+import { inject, onMounted } from "vue"
+import type { HttpClient } from "@/plugins/api/HttpClient"
+
+const api: HttpClient = inject<HttpClient>("api")
+
+onMounted(() => {
+    console.log(api)
+})
 </script>
