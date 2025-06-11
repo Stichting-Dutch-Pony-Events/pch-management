@@ -6,7 +6,9 @@ export default function createStore(router: Router) {
     const pinia = createPinia()
 
     router.beforeEach((to: RouteLocationRaw) => {
-        useMainStore(pinia)
+        const store = useMainStore()
+
+        if (!to.meta.guestRoute && !store.authToken) return '/login'
     })
 
     return pinia
