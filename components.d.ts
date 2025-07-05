@@ -7,11 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AdminDashboard: typeof import('./src/pages/admin/AdminDashboard.vue')['default']
-    Login: typeof import('./src/pages/Login.vue')['default']
-    LoginPage: typeof import('./src/pages/LoginPage.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    TeamsOverview: typeof import('./src/pages/admin/teams/TeamsOverview.vue')['default']
   }
 }
