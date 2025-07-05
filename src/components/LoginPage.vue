@@ -19,34 +19,35 @@
 </template>
 
 <script setup lang="ts">
-import type { HttpClient } from "@/plugins/api/HttpClient"
-import { inject, reactive, type Ref, ref } from "vue"
-import type { LoginCheckRequest } from "@/plugins/api/types/requests/login-check.request"
+import { HttpClient, useHttpClient } from "@/plugins/api/HttpClient"
+import { reactive, type Ref, ref } from "vue"
+import type { LoginCheckRequest } from "@/types"
 import { useRouter } from "vue-router"
 
-const api: HttpClient = inject<HttpClient>("api")
+const api: HttpClient = useHttpClient()
 const router = useRouter()
 
-const rules = [
-    (v: string) => !!v || "This field is required",
-    (v: string) => v.length >= 3 || "Minimum 3 characters",
-    (v: string) => v.length <= 20 || "Maximum 20 characters"
-]
+const rules = [(v: string) => !!v || "This field is required", (v: string) => v.length >= 3 || "Minimum 3 characters", (v: string) => v.length <= 20 || "Maximum 20 characters"]
 
-const formValid: Ref<boolean> = ref(false);
+const formValid: Ref<boolean> = ref(false)
 
 const loginRequest: LoginCheckRequest = reactive({
     username: "",
-    password: ""
+    password: "",
 })
 
 async function login() {
-    if(formValid) {
+    if (api === undefined) {
+        console.error("API client is not available")
+        return
+    }
+
+    if (formValid.value) {
         try {
             await api.login(loginRequest)
-            void router.push('/');
+            void router.push("/")
         } catch (error) {
-            console.error("Login failed:", error)
+            console.error("LoginPage failed:", error)
             // Handle login failure, e.g., show an error message
         }
     }
