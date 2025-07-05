@@ -1,25 +1,30 @@
-import { HttpClientError } from "@/plugins/api/HttpClientError"
+import { HttpClientError } from "./HttpClientError"
 import { type MainStore, useMainStore } from "@/plugins/pinia/main-store"
-import { AttendeeService } from "@/plugins/api/attendee.service"
+import { AttendeeService } from "./attendee.service"
 import type { ErrorResponse, LoginCheckRequest, LoginResponse } from "@/types"
-import type { _ActionsTree, _GettersTree, Store } from "pinia"
 import { inject } from "vue"
+import { TeamService } from "./team.service"
+import { type MessageStore, useMessageStore } from "@/plugins/pinia/message-store"
 
 export class HttpClient {
     public attendeeService: AttendeeService
-    public store: Store<"main", MainStore, _GettersTree<MainStore>, _ActionsTree>
+    public teamService: TeamService
+    public mainStore: MainStore
+    public messageStore: MessageStore
 
     public constructor(public baseUrl: string) {
         this.attendeeService = new AttendeeService(this)
-        this.store = useMainStore()
+        this.teamService = new TeamService(this)
+        this.mainStore = useMainStore()
+        this.messageStore = useMessageStore()
     }
 
     public async login(loginRequest: LoginCheckRequest): Promise<LoginResponse> {
         const loginResponse: LoginResponse = await this.post<LoginResponse>("/api/login_check", loginRequest)
 
-        this.store.authToken = loginResponse.token
+        this.mainStore.authToken = loginResponse.token
 
-        this.store.user = await this.attendeeService.getMe()
+        this.mainStore.user = await this.attendeeService.getMe()
 
         return loginResponse
     }
@@ -35,7 +40,7 @@ export class HttpClient {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${this.store.authToken}`,
+                Authorization: `Bearer ${this.mainStore.authToken}`,
             },
         })
 
@@ -50,7 +55,7 @@ export class HttpClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${this.store.authToken}`,
+                Authorization: `Bearer ${this.mainStore.authToken}`,
             },
             body: JSON.stringify(body),
         })
@@ -68,16 +73,28 @@ export class HttpClient {
         if (!response.ok) {
             if (response.status === 401) {
                 // Unauthorized, clear the auth token
-                this.store.authToken = null
-                this.store.user = null
+                this.mainStore.authToken = null
+                this.mainStore.user = null
                 throw new HttpClientError("Unauthorized", "You are not authorized to access this resource.")
             }
 
             if (response.status > 400 && response.status < 500) {
                 const errorResponse: ErrorResponse = (await response.json()) as ErrorResponse
+
+                this.messageStore.addMessage({
+                    color: "error",
+                    text: errorResponse.message,
+                    timeout: 5000,
+                })
+
                 throw new HttpClientError(errorResponse.code, errorResponse.message)
             }
 
+            this.messageStore.addMessage({
+                color: "error",
+                text: `HTTP error! status: ${response.status}`,
+                timeout: 5000,
+            })
             throw new Error(`HTTP error! status: ${response.status}`)
         }
     }

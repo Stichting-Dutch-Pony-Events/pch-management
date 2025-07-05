@@ -1,6 +1,6 @@
 <template>
     <v-container class="fill-height">
-        <v-responsive class="align-centerfill-height mx-auto" max-width="500">
+        <v-responsive class="align-center fill-height mx-auto" max-width="500">
             <v-card>
                 <v-form v-model="formValid">
                     <v-card-item>
@@ -10,7 +10,7 @@
                     <v-card-text>
                         <v-text-field v-model="loginRequest.username" label="Username" required :rules="rules" />
                         <v-text-field v-model="loginRequest.password" label="Password" type="password" :rules="rules" required />
-                        <v-btn @click="login" color="primary" class="mt-4" block> Login </v-btn>
+                        <v-btn type="submit" @click="login" color="primary" class="mt-4" block> Login </v-btn>
                     </v-card-text>
                 </v-form>
             </v-card>

@@ -1,0 +1,42 @@
+name: Build and Upload Release Assets
+
+on:
+    release:
+        types: [ created ]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout repo
+                uses: actions/checkout@v4
+
+            -   name: Setup Node.js
+                uses: actions/setup-node@v4
+                with:
+                    node-version: '22'
+                    cache: 'pnpm'
+
+            -   name: Install pnpm
+                uses: pnpm/action-setup@v2
+                with:
+                    version: 10
+
+            -   name: Install dependencies
+                run: pnpm install
+
+            -   name: Build project
+                run: pnpm build
+
+            -   name: Zip build output with version
+                run: |
+                    zip -r pch-app-manager-${{ github.ref_name }}.zip dist
+
+            -   name: Upload build.zip to release
+                uses: softprops/action-gh-release@v1
+                with:
+                    tag_name: ${{ github.ref_name }}
+                    files: pch-app-manager-${{ github.ref_name }}.zip
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

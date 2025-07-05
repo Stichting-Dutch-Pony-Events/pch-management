@@ -1,9 +1,8 @@
 import { defineStore, type StoreDefinition } from "pinia"
-import type { Attendee } from "@/types"
+import type { MainStoreState } from "@/types"
 
-export const useMainStore: StoreDefinition<"main", MainStore> = defineStore("main", {
-    state: (): MainStore => ({
-        // Example state property
+export const useMainStore: StoreDefinition<"main", MainStoreState> = defineStore("main", {
+    state: (): MainStoreState => ({
         user: null,
         authToken: null,
     }),
@@ -15,7 +14,4 @@ export const useMainStore: StoreDefinition<"main", MainStore> = defineStore("mai
     ],
 })
 
-export interface MainStore {
-    authToken: string | null
-    user: Attendee | null
-}
+export type MainStore = ReturnType<typeof useMainStore>
