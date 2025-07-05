@@ -28,7 +28,9 @@ jobs:
                 run: pnpm install
 
             -   name: Build project
-                run: pnpm build
+                env:
+                    VITE_API_URL: ${{ secrets.VITE_API_URL }}
+                run: pnpm run build
 
             -   name: Zip build output with version
                 run: |
