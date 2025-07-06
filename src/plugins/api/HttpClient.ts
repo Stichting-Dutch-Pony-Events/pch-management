@@ -20,10 +20,20 @@ export class HttpClient {
     }
 
     public async login(loginRequest: LoginCheckRequest): Promise<LoginResponse> {
-        const loginResponse: LoginResponse = await this.post<LoginResponse>("/api/login_check", loginRequest)
+        const response: Response = await fetch(new URL("/api/login_check", this.baseUrl).toString(), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(loginRequest),
+        })
+
+        await this.handleError(response, true)
+
+        const json = await response.json()
+        const loginResponse: LoginResponse = json as LoginResponse
 
         this.mainStore.authToken = loginResponse.token
-
         this.mainStore.user = await this.attendeeService.getMe()
 
         return loginResponse
@@ -64,14 +74,12 @@ export class HttpClient {
 
         const json = await response.json()
 
-        console.log(json)
-
         return json as T
     }
 
-    private async handleError(response: Response): Promise<void> {
+    private async handleError(response: Response, loginRoute: boolean = false): Promise<void> {
         if (!response.ok) {
-            if (response.status === 401) {
+            if (response.status === 401 && !loginRoute) {
                 // Unauthorized, clear the auth token
                 this.mainStore.authToken = null
                 this.mainStore.user = null
