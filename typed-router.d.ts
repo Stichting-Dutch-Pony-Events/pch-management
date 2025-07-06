@@ -21,6 +21,7 @@ declare module 'vue-router/auto-routes' {
     '/admin/AdminDashboard': RouteRecordInfo<'/admin/AdminDashboard', '/admin/AdminDashboard', Record<never, never>, Record<never, never>>,
     '/admin/teams/TeamForm': RouteRecordInfo<'/admin/teams/TeamForm', '/admin/teams/TeamForm', Record<never, never>, Record<never, never>>,
     '/admin/teams/TeamsOverview': RouteRecordInfo<'/admin/teams/TeamsOverview', '/admin/teams/TeamsOverview', Record<never, never>, Record<never, never>>,
-    '/LoginPage': RouteRecordInfo<'/LoginPage', '/LoginPage', Record<never, never>, Record<never, never>>,
+    '/LoginCallback': RouteRecordInfo<'/LoginCallback', '/LoginCallback', Record<never, never>, Record<never, never>>,
+    '/LoginOidc': RouteRecordInfo<'/LoginOidc', '/LoginOidc', Record<never, never>, Record<never, never>>,
   }
 }

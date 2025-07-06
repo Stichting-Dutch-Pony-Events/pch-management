@@ -2,7 +2,8 @@ import type { RouteRecordRaw } from "vue-router"
 import App from "@/App.vue"
 
 const Admin = () => import("@/pages/admin/AdminDashboard.vue").then((m) => m.default)
-const Login = () => import("@/pages/LoginPage.vue").then((m) => m.default)
+const Login = () => import("@/pages/LoginOidc.vue").then((m) => m.default)
+const LoginCallback = () => import("@/pages/LoginCallback.vue").then((m) => m.default)
 const Teams = () => import("@/pages/admin/teams/TeamsOverview.vue").then((m) => m.default)
 const TeamForm = () => import("@/pages/admin/teams/TeamForm.vue").then((m) => m.default)
 
@@ -37,6 +38,14 @@ export const routes: RouteRecordRaw[] = [
                 name: "LoginPage",
                 path: "login",
                 component: Login,
+                meta: {
+                    guestRoute: true,
+                },
+            },
+            {
+                name: "LoginCallback",
+                path: "login-callback",
+                component: LoginCallback,
                 meta: {
                     guestRoute: true,
                 },

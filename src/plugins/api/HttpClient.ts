@@ -1,42 +1,33 @@
 import { HttpClientError } from "./HttpClientError"
-import { type MainStore, useMainStore } from "@/plugins/pinia/main-store"
-import { AttendeeService } from "./attendee.service"
-import type { ErrorResponse, LoginCheckRequest, LoginResponse } from "@/types"
-import { inject } from "vue"
-import { TeamService } from "./team.service"
+import { AttendeeService, TeamService } from "./service/"
+import type { ErrorResponse } from "@/types"
 import { type MessageStore, useMessageStore } from "@/plugins/pinia/message-store"
+import type { UserManager } from "oidc-client-ts"
+import { useUserManager } from "@/plugins/oidc-client"
 
 export class HttpClient {
     public attendeeService: AttendeeService
     public teamService: TeamService
-    public mainStore: MainStore
     public messageStore: MessageStore
+    public userManager: UserManager
 
     public constructor(public baseUrl: string) {
         this.attendeeService = new AttendeeService(this)
         this.teamService = new TeamService(this)
-        this.mainStore = useMainStore()
         this.messageStore = useMessageStore()
+        this.userManager = useUserManager()
     }
 
-    public async login(loginRequest: LoginCheckRequest): Promise<LoginResponse> {
-        const response: Response = await fetch(new URL("/api/login_check", this.baseUrl).toString(), {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(loginRequest),
-        })
-
-        await this.handleError(response, true)
-
-        const json = await response.json()
-        const loginResponse: LoginResponse = json as LoginResponse
-
-        this.mainStore.authToken = loginResponse.token
-        this.mainStore.user = await this.attendeeService.getMe()
-
-        return loginResponse
+    private async getAccessToken(): Promise<string> {
+        try {
+            const user = await this.userManager.getUser()
+            if (user && user.access_token) {
+                return user.access_token
+            }
+        } catch (error) {
+            console.error("Failed to get access token:", error)
+        }
+        return ""
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,7 +41,7 @@ export class HttpClient {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${this.mainStore.authToken}`,
+                "oidc-token": `Bearer ${await this.getAccessToken()}`,
             },
         })
 
@@ -65,7 +56,7 @@ export class HttpClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${this.mainStore.authToken}`,
+                "oidc-token": `Bearer ${await this.getAccessToken()}`,
             },
             body: JSON.stringify(body),
         })
@@ -80,9 +71,8 @@ export class HttpClient {
     private async handleError(response: Response, loginRoute: boolean = false): Promise<void> {
         if (!response.ok) {
             if (response.status === 401 && !loginRoute) {
-                // Unauthorized, clear the auth token
-                this.mainStore.authToken = null
-                this.mainStore.user = null
+                await this.userManager.signinSilent()
+
                 throw new HttpClientError("Unauthorized", "You are not authorized to access this resource.")
             }
 
@@ -106,14 +96,4 @@ export class HttpClient {
             throw new Error(`HTTP error! status: ${response.status}`)
         }
     }
-}
-
-export const useHttpClient = (): HttpClient => {
-    const api: HttpClient | undefined = inject<HttpClient>("api")
-
-    if (api === undefined) {
-        throw new Error("HttpClient is not provided. Make sure to use the createPchApi plugin.")
-    }
-
-    return api
 }

@@ -1,4 +1,4 @@
-import { type App, type Plugin } from "vue"
+import { type App, inject, type Plugin } from "vue"
 import { HttpClient } from "@/plugins/api/HttpClient"
 
 declare module "vue" {
@@ -18,4 +18,14 @@ export function createPchApi(): Plugin {
     return {
         install,
     }
+}
+
+export const useHttpClient = (): HttpClient => {
+    const api: HttpClient | undefined = inject<HttpClient>("api")
+
+    if (api === undefined) {
+        throw new Error("HttpClient is not provided. Make sure to use the createPchApi plugin.")
+    }
+
+    return api
 }

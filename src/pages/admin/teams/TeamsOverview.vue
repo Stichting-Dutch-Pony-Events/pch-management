@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { HttpClient, useHttpClient } from "@/plugins/api/HttpClient"
+import { HttpClient, useHttpClient } from "@/plugins/api"
 import type { Team } from "@/types"
 import { useRouter } from "vue-router"
 import { computed, type ComputedRef, ref, type Ref } from "vue"

@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import type { Team, TeamRequest } from "@/types"
 import { reactive, ref, type Ref, watch } from "vue"
-import { HttpClient, useHttpClient } from "@/plugins/api/HttpClient"
+import { HttpClient, useHttpClient } from "@/plugins/api"
 import { useMessageStore } from "@/plugins/pinia/message-store"
 import router from "@/router"
 
