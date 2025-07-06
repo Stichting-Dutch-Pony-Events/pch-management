@@ -47,6 +47,21 @@ jobs:
                     echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
                   fi
 
+            - name: Generate release notes from commits
+              id: changelog
+              run: |
+                  PREV_TAG=$(git tag --sort=-creatordate | grep '^v' | grep -v "^${GITHUB_REF_NAME}$" | head -n 1)
+                  echo "Previous tag: $PREV_TAG"
+                  if [[ -z "$PREV_TAG" ]]; then
+                    NOTES=$(git log --pretty=format:"- %s" --no-merges)
+                  else
+                    NOTES=$(git log "$PREV_TAG"..HEAD --pretty=format:"- %s" --no-merges)
+                  fi
+                  echo "${NOTES}" > release-notes.txt
+                  echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+                  echo "${NOTES}" >> $GITHUB_OUTPUT
+                  echo "EOF" >> $GITHUB_OUTPUT
+
             - name: Create GitHub Release
               uses: ncipollo/release-action@v1
               with:
@@ -54,6 +69,7 @@ jobs:
                   name: Release ${{ github.ref_name }}
                   draft: false
                   prerelease: ${{ steps.version.outputs.IS_PRERELEASE }}
+                  bodyFile: release-notes.txt
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
