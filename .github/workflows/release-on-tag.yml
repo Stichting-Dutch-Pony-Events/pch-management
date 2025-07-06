@@ -1,0 +1,66 @@
+name: Build and Upload Release Assets
+
+on:
+    push:
+        tags:
+            - 'v*'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        environment: production
+
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v4
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v2
+              with:
+                  version: 10
+                  run_install: false
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Build project
+              env:
+                  VITE_API_URL: ${{ vars.VITE_API_URL }}
+              run: pnpm run build
+
+            - name: Zip build output with version
+              run: |
+                  zip -r pch-app-manager-${{ github.ref_name }}.zip dist
+
+            - name: Determine if prerelease
+              id: version
+              run: |
+                  if [[ "${GITHUB_REF_NAME}" =~ -[0-9]+$ ]]; then
+                    echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Create GitHub Release
+              uses: ncipollo/release-action@v1
+              with:
+                  tag: ${{ github.ref_name }}
+                  name: Release ${{ github.ref_name }}
+                  draft: false
+                  prerelease: ${{ steps.version.outputs.IS_PRERELEASE }}
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Upload zip to GitHub Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  tag_name: ${{ github.ref_name }}
+                  files: pch-app-manager-${{ github.ref_name }}.zip
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
