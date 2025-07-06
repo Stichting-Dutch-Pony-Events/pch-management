@@ -68,6 +68,24 @@ export class HttpClient {
         return json as T
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public async put<T>(url: string, body: any): Promise<T> {
+        const response: Response = await fetch(new URL(url, this.baseUrl).toString(), {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "oidc-token": `Bearer ${await this.getAccessToken()}`,
+            },
+            body: JSON.stringify(body),
+        })
+
+        await this.handleError(response)
+
+        const json = await response.json()
+
+        return json as T
+    }
+
     private async handleError(response: Response, loginRoute: boolean = false): Promise<void> {
         if (!response.ok) {
             if (response.status === 401 && !loginRoute) {

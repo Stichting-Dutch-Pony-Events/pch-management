@@ -11,4 +11,8 @@ export class TeamService {
     public async createTeam(teamRequest: TeamRequest): Promise<Team> {
         return await this.httpClient.post<Team>("api/v1/team", teamRequest)
     }
+
+    public async updateTeam(teamId: string, teamRequest: TeamRequest): Promise<Team> {
+        return await this.httpClient.put<Team>(`/api/v1/team/${teamId}`, teamRequest)
+    }
 }

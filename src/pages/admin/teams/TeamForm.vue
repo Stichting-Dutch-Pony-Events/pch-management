@@ -108,6 +108,14 @@ async function saveTeam(): Promise<void> {
                 })
 
                 void router.push({ name: "TeamDetails", params: { teamId: newTeam.id } })
+            } else {
+                const updatedTeam = await api.teamService.updateTeam(props.team.id, teamRequest)
+                emit("team-saved", updatedTeam)
+                messageStore.addMessage({
+                    color: "success",
+                    text: `Team ${updatedTeam.name} updated successfully!`,
+                    timeout: 3000,
+                })
             }
         } catch (e) {
             console.error(e)
