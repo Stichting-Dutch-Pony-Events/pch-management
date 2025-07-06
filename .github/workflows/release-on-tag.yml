@@ -55,29 +55,21 @@ jobs:
                 run: |
                     echo "tag=$(git describe --tags --abbrev=0 HEAD^)" >> $GITHUB_OUTPUT
 
-            -   name: Generate release notes
-                id: release_notes
-                run: |
-                    notes=$(git log ${{ steps.prev_tag.outputs.tag }}..${{ github.ref_name }} --pretty=format:"* %s" --no-merges)
-                    echo "notes<<EOF" >> $GITHUB_OUTPUT
-                    echo "$notes" >> $GITHUB_OUTPUT
-                    echo "EOF" >> $GITHUB_OUTPUT
+            - name: Generate release notes
+              id: release_notes
+              run: |
+                  notes="$(git log ${{ steps.prev_tag.outputs.tag }}..HEAD --pretty=format:"* %s" --no-merges)"
+                  notes="${notes//$'\n'/'%0A'}"
+                  echo "notes=$notes" >> $GITHUB_OUTPUT
 
-            -   name: Create GitHub Release
-                uses: ncipollo/release-action@v1
-                with:
-                    tag: ${{ github.ref_name }}
-                    name: Release ${{ github.ref_name }}
-                    draft: false
-                    prerelease: ${{ steps.version.outputs.IS_PRERELEASE }}
-                    body: ${{ steps.release_notes.outputs.notes }}
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            -   name: Upload zip to GitHub Release
-                uses: softprops/action-gh-release@v1
-                with:
-                    tag_name: ${{ github.ref_name }}
-                    files: pch-app-manager-${{ github.ref_name }}.zip
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Create GitHub Release
+              uses: ncipollo/release-action@v1
+              with:
+                  tag: ${{ github.ref_name }}
+                  name: Release ${{ github.ref_name }}
+                  draft: false
+                  prerelease: ${{ steps.version.outputs.IS_PRERELEASE }}
+                  body: ${{ steps.release_notes.outputs.notes }}
+                  artifacts: pch-app-manager-${{ github.ref_name }}.zip
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
