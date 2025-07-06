@@ -1,4 +1,7 @@
 export * from "./attendee"
 export * from "./attendee-achievement"
 export * from "./product"
+export * from "./quiz-answer"
+export * from "./quiz-answer-team-weight"
+export * from "./quiz-question"
 export * from "./team"

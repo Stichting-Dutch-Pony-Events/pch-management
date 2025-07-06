@@ -19,6 +19,8 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/admin/AdminDashboard': RouteRecordInfo<'/admin/AdminDashboard', '/admin/AdminDashboard', Record<never, never>, Record<never, never>>,
+    '/admin/quiz/QuizForm': RouteRecordInfo<'/admin/quiz/QuizForm', '/admin/quiz/QuizForm', Record<never, never>, Record<never, never>>,
+    '/admin/quiz/QuizOverview': RouteRecordInfo<'/admin/quiz/QuizOverview', '/admin/quiz/QuizOverview', Record<never, never>, Record<never, never>>,
     '/admin/teams/TeamForm': RouteRecordInfo<'/admin/teams/TeamForm', '/admin/teams/TeamForm', Record<never, never>, Record<never, never>>,
     '/admin/teams/TeamsOverview': RouteRecordInfo<'/admin/teams/TeamsOverview', '/admin/teams/TeamsOverview', Record<never, never>, Record<never, never>>,
     '/LoginCallback': RouteRecordInfo<'/LoginCallback', '/LoginCallback', Record<never, never>, Record<never, never>>,

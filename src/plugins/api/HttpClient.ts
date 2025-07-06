@@ -1,21 +1,25 @@
 import { HttpClientError } from "./HttpClientError"
-import { AttendeeService, TeamService } from "./service/"
+import { AttendeeService, QuizService, TeamService } from "./service/"
 import type { ErrorResponse } from "@/types"
 import { type MessageStore, useMessageStore } from "@/plugins/pinia/message-store"
 import type { UserManager } from "oidc-client-ts"
 import { useUserManager } from "@/plugins/oidc-client"
 
 export class HttpClient {
-    public attendeeService: AttendeeService
-    public teamService: TeamService
     public messageStore: MessageStore
     public userManager: UserManager
 
+    public attendeeService: AttendeeService
+    public teamService: TeamService
+    public quizService: QuizService
+
     public constructor(public baseUrl: string) {
-        this.attendeeService = new AttendeeService(this)
-        this.teamService = new TeamService(this)
         this.messageStore = useMessageStore()
         this.userManager = useUserManager()
+
+        this.attendeeService = new AttendeeService(this)
+        this.teamService = new TeamService(this)
+        this.quizService = new QuizService(this)
     }
 
     private async getAccessToken(): Promise<string> {

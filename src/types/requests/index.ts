@@ -1,2 +1,5 @@
 export * from "./login-check.request"
+export * from "./quiz-answer.request"
+export * from "./quiz-answer-team-weight.request"
+export * from "./quiz-question.request"
 export * from "./team.request"

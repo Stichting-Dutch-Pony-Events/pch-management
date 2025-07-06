@@ -7,6 +7,7 @@
         <v-navigation-drawer>
             <v-list nav>
                 <v-list-item title="Teams" prepend-icon="mdi-account-group" :to="{ name: 'TeamsOverview' }"></v-list-item>
+                <v-list-item title="Character Quiz" prepend-icon="mdi-chat-question" :to="{ name: 'QuizOverview' }"></v-list-item>
             </v-list>
         </v-navigation-drawer>
 
