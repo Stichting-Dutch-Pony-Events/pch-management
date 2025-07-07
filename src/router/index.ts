@@ -4,7 +4,7 @@
  * Automatic routes for `./src/pages/*.vue`
  */
 
-import { createRouter, createWebHistory } from "vue-router/auto"
+import { createRouter, createWebHistory } from "vue-router"
 import { routes } from "@/router/routes"
 
 const router = createRouter({
