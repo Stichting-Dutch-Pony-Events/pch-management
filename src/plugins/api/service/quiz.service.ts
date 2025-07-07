@@ -15,4 +15,8 @@ export class QuizService {
     public async createQuizQuestion(quizQuestionRequest: QuizQuestionRequest): Promise<QuizQuestion> {
         return await this.httpClient.post(`api/v1/quiz/questions`, quizQuestionRequest)
     }
+
+    public async updateQuizQuestion(id: string, quizQuestionRequest: QuizQuestionRequest): Promise<QuizQuestion> {
+        return await this.httpClient.put(`api/v1/quiz/questions/${id}`, quizQuestionRequest)
+    }
 }

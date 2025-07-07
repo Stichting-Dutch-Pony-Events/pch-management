@@ -1,41 +1,46 @@
 <template>
-    <v-sheet class="d-flex flex-column fill-height w-100">
-        <v-toolbar>
-            <v-toolbar-title>Character Quiz Questions</v-toolbar-title>
-            <template v-slot:append>
-                <v-btn icon="mdi-plus" @click="createQuestion" />
-            </template>
-        </v-toolbar>
-        <v-progress-linear indeterminate v-if="loading"></v-progress-linear>
-
-        <v-row class="flex-grow-1 fill-height">
-            <v-col class="v-col-lg-3 v-col-xl-2 fill-height" style="overflow-y: auto">
+    <v-row class="fill-height">
+        <v-col class="fill-height v-col-3 py-0">
+            <v-card class="d-flex flex-column fill-height w-100">
+                <v-card-item>
+                    <v-card-title>Questions</v-card-title>
+                </v-card-item>
                 <v-list>
-                    <!--
-                    <v-list-item v-for="team in teams" :key="team.id" :to="{ name: 'TeamDetails', params: { teamId: team.id } }">
-                        {{ team.name }}
-                    </v-list-item>
-                    -->
+                    <quiz-question-form :question="null" @question-created="addQuestion"></quiz-question-form>
+                    <quiz-question-form
+                        v-for="(question, index) in quizQuestions"
+                        :question="question"
+                        :key="question.id"
+                        @update:question="value => quizQuestions[index] = value"
+                    />
                 </v-list>
-            </v-col>
-
-            <v-col class="fill-height" style="overflow-y: auto">
-                <router-view v-model:loading="loading" />
-            </v-col>
-        </v-row>
-    </v-sheet>
+            </v-card>
+        </v-col>
+    </v-row>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from "vue-router"
-import { ref, type Ref } from "vue"
+import QuizQuestionForm from "@/pages/admin/quiz/QuizQuestionForm.vue"
+import { useHttpClient } from "@/plugins/api"
+import { type Ref, ref } from "vue"
+import type { QuizQuestion } from "@/types"
 
-const router = useRouter()
+const api = useHttpClient()
+const quizQuestions: Ref<QuizQuestion[]> = ref<QuizQuestion[]>([])
+const loading: Ref<boolean> = ref<boolean>(false)
 
-const loading: Ref<boolean> = ref(false)
+void getQuizQuestions();
+async function getQuizQuestions(): Promise<void> {
+    try {
+        loading.value = true;
+        quizQuestions.value = await api.quizService.getList()
+    } finally {
+        loading.value = false;
+    }
+}
 
-function createQuestion(): void {
-    void router.push({ name: "QuizForm", params: { quizId: "create" } })
+function addQuestion(quizQuestion: QuizQuestion): void {
+    quizQuestions.value.push(quizQuestion)
 }
 </script>
 
