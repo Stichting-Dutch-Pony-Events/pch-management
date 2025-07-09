@@ -4,15 +4,18 @@
         max-width="512px"
         persistent
     >
-        <template v-slot:activator="{ props: activatorProps }">
+        <template v-slot:activator>
             <v-divider v-if="props.question !== null"></v-divider>
-            <v-list-item v-bind="activatorProps">
+            <v-list-item @click="open">
                 <template v-slot:prepend>
                     <v-icon v-if="props.question === null">mdi-plus</v-icon>
-                    <v-icon v-else>mdi-chat-question</v-icon>
+                    <slot name="handle"></slot>
                 </template>
                 <v-list-item-title v-if="props.question === null">Create Question</v-list-item-title>
                 <v-list-item-title v-else>{{ props.question?.question }}</v-list-item-title>
+                <template v-slot:append>
+                    <v-btn @click="dialogOpen = true" variant="plain" icon="mdi-pencil" v-if="props.question !== null" />
+                </template>
             </v-list-item>
         </template>
 
@@ -115,6 +118,12 @@ async function saveQuestion(): Promise<void> {
         } finally {
             loading.value = false;
         }
+    }
+}
+
+function open(): void {
+    if (props.question === null) {
+        dialogOpen.value = true;
     }
 }
 </script>
