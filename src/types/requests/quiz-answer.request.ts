@@ -2,7 +2,7 @@ import type { QuizAnswerTeamWeightRequest } from "./quiz-answer-team-weight.requ
 
 export interface QuizAnswerRequest {
     id: string | null
+    title: string
     answer: string
-    order: number
     teamWeights: QuizAnswerTeamWeightRequest[]
 }

@@ -1,5 +1,5 @@
 import type { HttpClient } from "@/plugins/api"
-import type { QuizQuestion, QuizQuestionRequest } from "@/types"
+import type { QuizAnswer, QuizQuestion, QuizQuestionRequest } from "@/types"
 import type { ChangeOrderRequest } from "@/types/requests/change-order.request"
 
 export class QuizService {
@@ -11,6 +11,10 @@ export class QuizService {
 
     public async getQuestion(id: string): Promise<QuizQuestion> {
         return await this.httpClient.get(`api/v1/quiz/questions/${id}`)
+    }
+
+    public async getAnswers(questionId: string): Promise<QuizAnswer[]> {
+        return await this.httpClient.get(`api/v1/quiz/questions/${questionId}/answers`)
     }
 
     public async createQuizQuestion(quizQuestionRequest: QuizQuestionRequest): Promise<QuizQuestion> {
