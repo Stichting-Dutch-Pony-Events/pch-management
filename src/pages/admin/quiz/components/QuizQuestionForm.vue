@@ -76,10 +76,12 @@ const rules = {
 }
 
 watch(
-    () => props.question,
-    (question: QuizQuestion | null) => {
-        questionRequest.title = question?.title ?? ""
-        questionRequest.question = question?.question ?? ""
+    () => dialogOpen,
+    (dialogOpen: Ref<boolean>): void => {
+        if (dialogOpen.value) {
+            questionRequest.title = props.question?.title ?? ""
+            questionRequest.question = props.question?.question ?? ""
+        }
     },
     { immediate: true, deep: true }
 )
