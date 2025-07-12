@@ -22,7 +22,7 @@
                                 <v-icon :class="{ 'drag-handle': !loading }" v-show="!loading">mdi-drag</v-icon>
                                 <v-progress-circular indeterminate v-if="loading" size="16"></v-progress-circular>
                             </template>
-                            <v-list-item-title>{{ element.order }}. {{ element.title }}</v-list-item-title>
+                            <v-list-item-title @click.self="navigateToAnswer(question.id, element.id)">{{ element.order }}. {{ element.title }}</v-list-item-title>
                             <template v-slot:append>
                                 <confirm-dialog :message="`You will be deleting the Quiz Answer: ${element.title}`" @confirm="emit('delete-answer', element)"> </confirm-dialog>
                             </template>
@@ -63,7 +63,7 @@ function onUpdateAnswers(answers: QuizAnswer[]): void {
 function navigateToAnswer(quizQuestionId: string, quizAnswerId: string) {
     void router.push({
         name: "QuizOverview",
-        params: { quizQuestionId, quizAnswerId },
+        params: { quizQuestionId: quizQuestionId, quizAnswerId: quizAnswerId },
     })
 }
 
