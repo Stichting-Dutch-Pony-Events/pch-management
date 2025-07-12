@@ -56,34 +56,33 @@ export class HttpClient {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public async post<T>(url: string, body: any): Promise<T> {
-        const response: Response = await fetch(new URL(url, this.baseUrl).toString(), {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "oidc-token": `Bearer ${await this.getAccessToken()}`,
-            },
-            body: JSON.stringify(body),
-        })
-
-        await this.handleError(response)
-
-        const json = await response.json()
-
-        return json as T
+        return this.handleMethodWithContent<T>(url, "POST", body)
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public async put<T>(url: string, body: any): Promise<T> {
+        return this.handleMethodWithContent(url, "PUT", body)
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public async patch<T>(url: string, body: any): Promise<T> {
+        return this.handleMethodWithContent<T>(url, "PATCH", body)
+    }
+
+    public async delete<T>(url: string): Promise<T> {
         const response: Response = await fetch(new URL(url, this.baseUrl).toString(), {
-            method: "PUT",
+            method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
                 "oidc-token": `Bearer ${await this.getAccessToken()}`,
             },
-            body: JSON.stringify(body),
         })
 
         await this.handleError(response)
+
+        if (response.status === 204) {
+            return {} as T // Return an empty object for 204 No Content
+        }
 
         const json = await response.json()
 
@@ -91,9 +90,9 @@ export class HttpClient {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public async patch<T>(url: string, body: any): Promise<T> {
+    private async handleMethodWithContent<T>(url: string, method: string, body: any): Promise<T> {
         const response: Response = await fetch(new URL(url, this.baseUrl).toString(), {
-            method: "PATCH",
+            method: method,
             headers: {
                 "Content-Type": "application/json",
                 "oidc-token": `Bearer ${await this.getAccessToken()}`,
@@ -102,6 +101,10 @@ export class HttpClient {
         })
 
         await this.handleError(response)
+
+        if (response.status === 204) {
+            return {} as T // Return an empty object for 204 No Content
+        }
 
         const json = await response.json()
 

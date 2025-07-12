@@ -19,9 +19,9 @@
             </v-card-text>
 
             <v-card-actions>
-                <v-btn variant="plain" :to="{ name: 'TeamsOverview' }">Cancel</v-btn>
+                <v-btn variant="text" :to="{ name: 'TeamsOverview' }">Cancel</v-btn>
                 <v-spacer></v-spacer>
-                <v-btn variant="plain" type="submit" :disabled="props.loading">Save</v-btn>
+                <v-btn variant="text" type="submit" :disabled="props.loading">Save</v-btn>
             </v-card-actions>
         </v-form>
     </v-card>

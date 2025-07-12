@@ -5,7 +5,7 @@ const QuizOverview = () => import("@/pages/admin/quiz/QuizOverview.vue").then((m
 export const QuizRoutes: RouteRecordRaw[] = [
     {
         name: "QuizOverview",
-        path: "quiz",
+        path: "quiz/:quizQuestionId?/:quizAnswerId?",
         component: QuizOverview,
     },
 ]
