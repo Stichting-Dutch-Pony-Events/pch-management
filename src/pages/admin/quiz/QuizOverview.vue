@@ -16,6 +16,7 @@
                                     :key="question.id"
                                     @update:question="(value) => (quizQuestions[index] = value)"
                                     @open-question="openQuestion"
+                                    @delete-question="deleteQuestion"
                                 >
                                     <template v-slot:handle>
                                         <v-icon :class="{ 'drag-handle': !loading }" v-show="!loading">mdi-drag</v-icon>
@@ -29,10 +30,18 @@
             </v-card>
         </v-col>
         <v-col class="fill-height v-col-3 py-0">
-            <quiz-answer-list v-if="selectedQuestion !== null" :question="selectedQuestion"></quiz-answer-list>
+            <quiz-answer-list
+                v-if="selectedQuestion !== null"
+                :question="selectedQuestion"
+                :answers="quizAnswers"
+                :loading="loadingAnswers"
+                @update:answers="(value) => (quizAnswers = value)"
+                @change-order="answerOrderChanged"
+                @delete-answer="deleteAnswer"
+            ></quiz-answer-list>
         </v-col>
         <v-col class="fill-height v-col-6 py-0">
-            <quiz-answer-form v-if="selectedQuestion !== null" :quiz-question="selectedQuestion" :quiz-answer="null"></quiz-answer-form>
+            <quiz-answer-form v-if="showAnswerForm && selectedQuestion !== null" :quiz-question="selectedQuestion" v-model:quiz-answer="selectedAnswer" @answer-created="addAnswer"></quiz-answer-form>
         </v-col>
     </v-row>
 </template>
@@ -40,21 +49,24 @@
 <script setup lang="ts">
 import draggable from "vuedraggable"
 import QuizQuestionForm from "@/pages/admin/quiz/components/QuizQuestionForm.vue"
-import { useHttpClient } from "@/plugins/api"
+import { HttpClientError, useHttpClient } from "@/plugins/api"
 import { computed, type ComputedRef, type Ref, ref, watch } from "vue"
 import type { QuizAnswer, QuizQuestion } from "@/types"
 import type { ChangeOrderRequest } from "@/types/requests/change-order.request"
 import { useRoute, useRouter } from "vue-router"
 import QuizAnswerList from "@/pages/admin/quiz/components/QuizAnswerList.vue"
 import QuizAnswerForm from "@/pages/admin/quiz/components/QuizAnswerForm.vue"
+import { useMessageStore } from "@/plugins/pinia/message-store"
 
 const api = useHttpClient()
 const quizQuestions: Ref<QuizQuestion[]> = ref<QuizQuestion[]>([])
 const quizAnswers: Ref<QuizAnswer[]> = ref<QuizAnswer[]>([])
 
 const loading: Ref<boolean> = ref<boolean>(false)
+const loadingAnswers: Ref<boolean> = ref<boolean>(false)
 const route = useRoute()
 const router = useRouter()
+const messageStore = useMessageStore()
 
 void getQuizQuestions()
 
@@ -64,6 +76,27 @@ const selectedQuestion: ComputedRef<QuizQuestion | null> = computed(() => {
     }
 
     return null
+})
+
+const selectedAnswer: ComputedRef<QuizAnswer | null> = computed({
+    get(): QuizAnswer | null {
+        if (route.params.quizAnswerId) {
+            return quizAnswers.value.find((a) => a.id === route.params.quizAnswerId) || null
+        }
+
+        return null
+    },
+    set(val: QuizAnswer | null): void {
+        const index = quizAnswers.value.findIndex((a) => a.id === val?.id)
+
+        if (index >= 0 && val !== null) {
+            quizAnswers.value[index] = val
+        }
+    },
+})
+
+const showAnswerForm: ComputedRef<boolean> = computed(() => {
+    return selectedAnswer.value !== null || route.params.quizAnswerId === "create"
 })
 
 watch(
@@ -94,8 +127,34 @@ async function getQuizAnswers(): Promise<void> {
     }
 
     try {
-        loading.value = true
+        loadingAnswers.value = true
         quizAnswers.value = await api.quizService.getAnswers(questionId)
+    } finally {
+        loadingAnswers.value = false
+    }
+}
+
+async function deleteQuestion(question: QuizQuestion): Promise<void> {
+    try {
+        loading.value = true
+        await api.quizService.deleteQuizQuestion(question.id)
+        quizQuestions.value = quizQuestions.value.filter((q) => q.id !== question.id)
+
+        messageStore.addMessage({
+            color: "success",
+            text: `Question "${question.title}" deleted successfully.`,
+            timeout: 3000,
+        })
+    } catch (error) {
+        if (error instanceof HttpClientError) {
+            messageStore.addMessage({
+                color: "error",
+                text: error.message,
+                timeout: 5000,
+            })
+            return
+        }
+        console.error("Failed to delete question:", error)
     } finally {
         loading.value = false
     }
@@ -130,6 +189,62 @@ function openQuestion(question: QuizQuestion): void {
     }
 
     void router.push({ name: "QuizOverview", params: { quizQuestionId: question.id, quizAnswerId: undefined } })
+}
+
+function addAnswer(answer: QuizAnswer): void {
+    quizAnswers.value.push(answer)
+}
+
+async function answerOrderChanged(): Promise<void> {
+    if (selectedQuestion.value === null) {
+        return
+    }
+
+    const changeOrderRequest: ChangeOrderRequest = {
+        ids: [],
+    }
+
+    for (let index = 0; index < quizAnswers.value.length; index++) {
+        quizAnswers.value[index].order = index + 1
+        changeOrderRequest.ids.push(quizAnswers.value[index].id)
+    }
+
+    try {
+        loadingAnswers.value = true
+        await api.quizService.changeAnswerOrder(selectedQuestion.value.id, changeOrderRequest)
+    } finally {
+        loadingAnswers.value = false
+    }
+}
+
+async function deleteAnswer(answer: QuizAnswer): Promise<void> {
+    if (selectedQuestion.value === null) {
+        return
+    }
+
+    try {
+        loadingAnswers.value = true
+        await api.quizService.deleteQuizAnswer(selectedQuestion.value.id, answer.id)
+        quizAnswers.value = quizAnswers.value.filter((a) => a.id !== answer.id)
+
+        messageStore.addMessage({
+            color: "success",
+            text: `Answer "${answer.title}" deleted successfully.`,
+            timeout: 3000,
+        })
+    } catch (error) {
+        if (error instanceof HttpClientError) {
+            messageStore.addMessage({
+                color: "error",
+                text: error.message,
+                timeout: 5000,
+            })
+            return
+        }
+        console.error("Failed to delete answer:", error)
+    } finally {
+        loadingAnswers.value = false
+    }
 }
 </script>
 

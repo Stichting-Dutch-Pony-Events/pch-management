@@ -11,6 +11,7 @@
                 <v-list-item-title v-else>{{ props.question?.order }}. {{ props.question?.title }}</v-list-item-title>
                 <template v-slot:append>
                     <v-btn @click="dialogOpen = true" variant="plain" icon="mdi-pencil" v-if="props.question !== null" density="compact" />
+                    <confirm-dialog v-if="props.question !== null" :message="`You will be deleting the Quiz Question: ${props.question.title}`" @confirm="emit('delete-question', props.question)" />
                 </template>
             </v-list-item>
         </template>
@@ -24,7 +25,7 @@
                     </v-card-item>
 
                     <v-card-text>
-                        <v-text-field v-model="questionRequest.title" :rules="rules.title" label="Title" counter="50"></v-text-field>
+                        <v-text-field v-model="questionRequest.title" :rules="rules.title" label="Title" counter="50" hint="Won't be shown in app, just for our reference"></v-text-field>
                         <v-textarea v-model="questionRequest.question" :rules="rules.question" label="Question" counter="500" auto-grow></v-textarea>
                     </v-card-text>
 
@@ -44,6 +45,7 @@ import type { QuizQuestion, QuizQuestionRequest } from "@/types"
 import { reactive, ref, type Ref, watch } from "vue"
 import { useHttpClient } from "@/plugins/api"
 import { useMessageStore } from "@/plugins/pinia/message-store"
+import ConfirmDialog from "@/components/ConfirmDialog.vue"
 
 interface Props {
     question: QuizQuestion | null
@@ -55,6 +57,7 @@ const emit = defineEmits<{
     (e: "update:question", value: QuizQuestion): void
     (e: "question-created", value: QuizQuestion): void
     (e: "open-question", value: QuizQuestion): void
+    (e: "delete-question", value: QuizQuestion): void
 }>()
 
 const api = useHttpClient()

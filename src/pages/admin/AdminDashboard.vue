@@ -2,7 +2,7 @@
 
 <template>
     <v-layout class="fill-height">
-        <v-app-bar title="PonyCon Holland App - Management Console"></v-app-bar>
+        <v-app-bar color="primary" title="PonyCon Holland App - Management Console"></v-app-bar>
 
         <v-navigation-drawer>
             <v-list nav>
