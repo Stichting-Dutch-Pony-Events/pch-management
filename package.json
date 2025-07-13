@@ -12,8 +12,10 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
+    "@date-io/luxon": "^3.2.0",
     "@mdi/font": "7.4.47",
     "core-js": "^3.44.0",
+    "luxon": "^3.7.1",
     "oidc-client-ts": "^3.3.0",
     "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.4.1",
@@ -25,6 +27,7 @@
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "@tsconfig/node22": "^22.0.2",
+    "@types/luxon": "^3.6.2",
     "@types/node": "^22.16.3",
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.36.0",
