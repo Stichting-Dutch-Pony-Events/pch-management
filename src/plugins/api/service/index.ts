@@ -1,3 +1,4 @@
 export * from "./attendee.service"
 export * from "./quiz.service"
 export * from "./team.service"
+export * from "./timetable-day.service"

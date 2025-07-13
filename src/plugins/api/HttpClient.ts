@@ -1,5 +1,5 @@
 import { HttpClientError } from "./HttpClientError"
-import { AttendeeService, QuizService, TeamService } from "./service/"
+import { AttendeeService, QuizService, TeamService, TimetableDayService } from "./service/"
 import type { ErrorResponse } from "@/types"
 import { type MessageStore, useMessageStore } from "@/plugins/pinia/message-store"
 import type { UserManager } from "oidc-client-ts"
@@ -12,6 +12,7 @@ export class HttpClient {
     public attendeeService: AttendeeService
     public teamService: TeamService
     public quizService: QuizService
+    public timetableDayService: TimetableDayService
 
     public constructor(public baseUrl: string) {
         this.messageStore = useMessageStore()
@@ -20,6 +21,7 @@ export class HttpClient {
         this.attendeeService = new AttendeeService(this)
         this.teamService = new TeamService(this)
         this.quizService = new QuizService(this)
+        this.timetableDayService = new TimetableDayService(this)
     }
 
     private async getAccessToken(): Promise<string> {

@@ -1,6 +1,6 @@
 import type { RouteRecordRaw } from "vue-router"
 
-const QuizOverview = () => import("@/pages/admin/quiz/QuizOverview.vue").then((m) => m.default)
+const QuizOverview = () => import("@/pages/admin/quiz/QuizOverview.vue")
 
 export const QuizRoutes: RouteRecordRaw[] = [
     {

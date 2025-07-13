@@ -76,9 +76,9 @@ const rules = {
 }
 
 watch(
-    () => dialogOpen,
-    (dialogOpen: Ref<boolean>): void => {
-        if (dialogOpen.value) {
+    dialogOpen,
+    (dialogOpen: boolean): void => {
+        if (dialogOpen) {
             questionRequest.title = props.question?.title ?? ""
             questionRequest.question = props.question?.question ?? ""
         }

@@ -2,10 +2,11 @@ import type { RouteRecordRaw } from "vue-router"
 import App from "@/App.vue"
 import { TeamRoutes } from "@/router/modules/team.routes"
 import { QuizRoutes } from "@/router/modules/quiz.routes"
+import { TimetableRoutes } from "@/pages/admin/timetable/timetable-routing.module"
 
-const Admin = () => import("@/pages/admin/AdminDashboard.vue").then((m) => m.default)
-const Login = () => import("@/pages/LoginOidc.vue").then((m) => m.default)
-const LoginCallback = () => import("@/pages/LoginCallback.vue").then((m) => m.default)
+const Admin = () => import("@/pages/admin/AdminDashboard.vue")
+const Login = () => import("@/pages/LoginOidc.vue")
+const LoginCallback = () => import("@/pages/LoginCallback.vue")
 
 export const routes: RouteRecordRaw[] = [
     {
@@ -19,7 +20,7 @@ export const routes: RouteRecordRaw[] = [
                 name: "AdminDashboard",
                 path: "admin",
                 component: Admin,
-                children: [...TeamRoutes, ...QuizRoutes],
+                children: [...TeamRoutes, ...QuizRoutes, ...TimetableRoutes],
             },
             {
                 name: "LoginPage",
