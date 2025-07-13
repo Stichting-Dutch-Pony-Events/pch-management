@@ -14,7 +14,7 @@ export class TimetableDayService {
         return await this.httpClient.post<TimetableDay>("/api/v1/timetable/days", timetableDayRequest)
     }
 
-    public async updateTimetableDay(timetableDayId: number, timetableDayRequest: TimetableDayRequest): Promise<TimetableDay> {
+    public async updateTimetableDay(timetableDayId: string, timetableDayRequest: TimetableDayRequest): Promise<TimetableDay> {
         return await this.httpClient.put<TimetableDay>(`/api/v1/timetable/days/${timetableDayId}`, timetableDayRequest)
     }
 
@@ -22,7 +22,7 @@ export class TimetableDayService {
         return await this.httpClient.patch(`api/v1/timetable/days/change-order`, changeOrderRequest)
     }
 
-    public async deleteTimetableDay(id: string): Promise<void> {
-        return await this.httpClient.delete(`api/v1/timetable/days/${id}`)
+    public async deleteTimetableDay(timetableDayId: string): Promise<void> {
+        return await this.httpClient.delete(`api/v1/timetable/days/${timetableDayId}`)
     }
 }
