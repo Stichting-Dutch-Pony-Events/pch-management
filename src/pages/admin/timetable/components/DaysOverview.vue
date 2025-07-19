@@ -9,7 +9,7 @@
             <draggable v-model="days" @change="orderChanged" item-key="id" tag="div" animation="200" handle=".drag-handle">
                 <template #item="{ element: day, index }">
                     <div>
-                        <day-form :timetable-day="day" :key="day.id" @update:timetable-day="(value) => (days[index] = value)" @delete:timetable-day="deleteTimetableDay">
+                        <day-form :timetable-day="day" :key="day.id" @update:timetable-day="(value) => updateDay(value, index)" @delete:timetable-day="deleteTimetableDay">
                             <template v-slot:handle>
                                 <v-icon :class="{ 'drag-handle': !loading }" v-show="!loading">mdi-drag</v-icon>
                                 <v-progress-circular indeterminate v-if="loading" size="16"></v-progress-circular>
@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import DayForm from "@/pages/admin/timetable/components/DayForm.vue"
 import { HttpClientError, useHttpClient } from "@/plugins/api"
-import { type Ref, ref } from "vue"
+import { computed, type Ref, ref } from "vue"
 import type { TimetableDay } from "@/types"
 import draggable from "vuedraggable"
 import type { ChangeOrderRequest } from "@/types/requests/change-order.request"
@@ -34,18 +34,24 @@ import { useMessageStore } from "@/plugins/pinia/message-store"
 const api = useHttpClient()
 const messageStore = useMessageStore()
 
-const days: Ref<TimetableDay[]> = ref<TimetableDay[]>([])
-const loading: Ref<boolean> = ref<boolean>(false)
-
-void getTimetableDays()
-async function getTimetableDays(): Promise<void> {
-    try {
-        loading.value = true
-        days.value = await api.timetableDayService.getTimetableDays()
-    } finally {
-        loading.value = false
-    }
+interface Props {
+    timetableDays: TimetableDay[]
 }
+
+const props = withDefaults(defineProps<Props>(), {
+    timetableDays: () => [],
+})
+
+const emit = defineEmits<{
+    (e: "update:timetableDays", value: TimetableDay[]): void
+}>()
+
+const days = computed<TimetableDay[]>({
+    get: () => props.timetableDays,
+    set: (value: TimetableDay[]) => emit("update:timetableDays", value),
+})
+
+const loading: Ref<boolean> = ref<boolean>(false)
 
 async function orderChanged(): Promise<void> {
     const changeOrderRequest: ChangeOrderRequest = {
@@ -92,7 +98,13 @@ async function deleteTimetableDay(day: TimetableDay): Promise<void> {
 }
 
 function addDay(day: TimetableDay): void {
-    days.value.push(day)
+    days.value = [...days.value, day]
+}
+
+function updateDay(day: TimetableDay, index: number): void {
+    const timetableDays = days.value
+    timetableDays[index] = day
+    days.value = timetableDays
 }
 </script>
 

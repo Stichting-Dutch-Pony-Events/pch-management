@@ -1,67 +1,38 @@
 <template>
-    <v-dialog v-model="dialogOpen" max-width="512px" persistent>
-        <template v-slot:activator>
-            <v-divider v-if="props.timetableDay !== null"></v-divider>
-            <v-list-item @click="dialogOpen = true">
-                <template v-slot:prepend>
-                    <v-icon v-if="props.timetableDay === null">mdi-plus</v-icon>
-                    <slot name="handle"></slot>
-                </template>
-                <v-list-item-title v-if="props.timetableDay === null">Create Day</v-list-item-title>
-                <v-list-item-title v-else>
-                    {{ props.timetableDay?.order }}. {{ props.timetableDay?.title }} -
-                    <span class="text-caption">({{ startsAt.toLocaleString(DateTime.DATETIME_MED) }} - {{ endsAt.toLocaleString(DateTime.DATETIME_MED) }})</span>
-                </v-list-item-title>
-                <template v-slot:append>
-                    <confirm-dialog
-                        v-if="props.timetableDay !== null"
-                        :message="`You will be deleting the Timetable Day: ${props.timetableDay.title}`"
-                        @confirm="$emit('delete:timetable-day', props.timetableDay)"
-                    />
-                </template>
-            </v-list-item>
+    <list-dialog-form
+        ref="listDialogForm"
+        v-model:dialog-open="dialogOpen"
+        v-model:form-valid="formValid"
+        :loading="loading"
+        :create-mode="props.timetableDay === null"
+        :title-text="`${props.timetableDay?.order}. ${props.timetableDay?.title}`"
+        type-name="Timetable Day"
+        @submit-form="submitForm"
+        @delete="deleteTimetableDay"
+    >
+        <template #handle>
+            <slot name="handle"></slot>
         </template>
-
-        <template v-slot:default="{ isActive }">
-            <v-form v-model="formValid" @submit.prevent="submitForm">
-                <v-card :loading="loading">
-                    <v-card-item>
-                        <v-card-title v-if="props.timetableDay === null">Create Day</v-card-title>
-                        <v-card-title v-else>Edit Day</v-card-title>
-                    </v-card-item>
-
-                    <v-card-text>
-                        <v-text-field v-model="timetableDayRequest.title" :rules="rules.title" label="Title" counter="50"></v-text-field>
-                        <v-row no-gutters>
-                            <v-col class="mr-2">
-                                <date-picker
-                                    v-model="timetableDayRequest.startsAt"
-                                    :text-field-props="{ prependIcon: 'mdi-calendar-start', label: 'Start Date', rules: rules.startDate }"
-                                ></date-picker>
-                            </v-col>
-                            <v-col class="ml-2">
-                                <time-picker v-model="timetableDayRequest.startsAt" :text-field-props="{ prependIcon: 'mdi-calendar-start', label: 'Start Time' }"></time-picker>
-                            </v-col>
-                        </v-row>
-                        <v-row no-gutters>
-                            <v-col class="mr-2">
-                                <date-picker v-model="timetableDayRequest.endsAt" :text-field-props="{ prependIcon: 'mdi-calendar-start', label: 'End Date', rules: rules.startDate }"></date-picker>
-                            </v-col>
-                            <v-col class="ml-2">
-                                <time-picker v-model="timetableDayRequest.endsAt" :text-field-props="{ prependIcon: 'mdi-calendar-start', label: 'End Time' }"></time-picker>
-                            </v-col>
-                        </v-row>
-                    </v-card-text>
-
-                    <template v-slot:actions>
-                        <v-btn @click="isActive.value = false">Cancel</v-btn>
-                        <v-spacer></v-spacer>
-                        <v-btn type="submit" :disabled="loading">Save</v-btn>
-                    </template>
-                </v-card>
-            </v-form>
+        <template #form-fields>
+            <v-text-field v-model="timetableDayRequest.title" :rules="rules.title" label="Title" counter="50"></v-text-field>
+            <v-row no-gutters>
+                <v-col class="mr-2">
+                    <date-picker v-model="timetableDayRequest.startsAt" :text-field-props="{ prependIcon: 'mdi-calendar-start', label: 'Start Date', rules: rules.startDate }"></date-picker>
+                </v-col>
+                <v-col class="ml-2">
+                    <time-picker v-model="timetableDayRequest.startsAt" :text-field-props="{ prependIcon: 'mdi-calendar-start', label: 'Start Time' }"></time-picker>
+                </v-col>
+            </v-row>
+            <v-row no-gutters>
+                <v-col class="mr-2">
+                    <date-picker v-model="timetableDayRequest.endsAt" :text-field-props="{ prependIcon: 'mdi-calendar-start', label: 'End Date', rules: rules.startDate }"></date-picker>
+                </v-col>
+                <v-col class="ml-2">
+                    <time-picker v-model="timetableDayRequest.endsAt" :text-field-props="{ prependIcon: 'mdi-calendar-start', label: 'End Time' }"></time-picker>
+                </v-col>
+            </v-row>
         </template>
-    </v-dialog>
+    </list-dialog-form>
 </template>
 
 <script setup lang="ts">
@@ -73,7 +44,7 @@ import DatePicker from "@/components/DatePicker.vue"
 import TimePicker from "@/components/TimePicker.vue"
 import { HttpClientError, useHttpClient } from "@/plugins/api"
 import { useMessageStore } from "@/plugins/pinia/message-store"
-import ConfirmDialog from "@/components/ConfirmDialog.vue"
+import ListDialogForm from "@/components/ListDialogForm.vue"
 
 const api = useHttpClient()
 const messageStore = useMessageStore()
@@ -95,6 +66,7 @@ const emit = defineEmits<{
 const dialogOpen: Ref<boolean> = ref<boolean>(false)
 const formValid: Ref<boolean> = ref<boolean>(false)
 const loading: Ref<boolean> = ref<boolean>(false)
+
 const rules = {
     title: [(v: string) => !!v || "This field is required", (v: string) => v.length >= 3 || "Minimum 3 characters", (v: string) => v.length <= 50 || "Maximum 50 characters"],
     startDate: [(v: string) => !!v || "This field is required", () => startsAt.value < endsAt.value || "Start date must be before end date"],
@@ -127,6 +99,12 @@ function populateTimetableDayRequest(): void {
     timetableDayRequest.endsAt = props.timetableDay?.endsAt ?? DateTime.now().setZone("UTC").plus({ days: 1 }).toISO() ?? ""
 }
 
+function deleteTimetableDay(): void {
+    if (props.timetableDay) {
+        emit("delete:timetable-day", props.timetableDay)
+    }
+}
+
 async function submitForm(): Promise<void> {
     if (!formValid.value) {
         return
@@ -155,6 +133,7 @@ async function submitForm(): Promise<void> {
 
             emit("update:timetableDay", updatedTimetableDay)
         }
+
         dialogOpen.value = false
     } catch (error) {
         if (error instanceof HttpClientError) {

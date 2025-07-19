@@ -35,6 +35,9 @@ importers:
       vue:
         specifier: ^3.5.17
         version: 3.5.17(typescript@5.8.3)
+      vue-component-type-helpers:
+        specifier: ^3.0.3
+        version: 3.0.3
       vuedraggable:
         specifier: ^4.1.0
         version: 4.1.0(vue@3.5.17(typescript@5.8.3))
@@ -1503,6 +1506,9 @@ packages:
   vscode-uri@3.1.0:
     resolution: {integrity: sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==}
 
+  vue-component-type-helpers@3.0.3:
+    resolution: {integrity: sha512-koiBu7lO8e6w/UlbZAAIW11qcFQocYIl7Nh/SVwGZ804ej5KrncU32bRxi2zfU2Kyf6HWuk1CeeVP2rhIL+vyQ==}
+
   vue-eslint-parser@10.2.0:
     resolution: {integrity: sha512-CydUvFOQKD928UzZhTp4pr2vWz1L+H99t7Pkln2QSPdvmURT0MoC4wUccfCnuEaihNsu9aYYyk+bep8rlfkUXw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -2827,6 +2833,8 @@ snapshots:
       yaml: 2.8.0
 
   vscode-uri@3.1.0: {}
+
+  vue-component-type-helpers@3.0.3: {}
 
   vue-eslint-parser@10.2.0(eslint@9.31.0):
     dependencies:
