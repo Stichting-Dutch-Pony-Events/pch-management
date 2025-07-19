@@ -1,7 +1,5 @@
 import type { HttpClient } from "@/plugins/api"
-import type { TimetableDay } from "@/types"
-import type { TimetableDayRequest } from "@/types/requests/timetable-day.request"
-import type { ChangeOrderRequest } from "@/types/requests/change-order.request"
+import type { ChangeOrderRequest, TimetableDay, TimetableDayRequest } from "@/types"
 
 export class TimetableDayService {
     constructor(private httpClient: HttpClient) {}
