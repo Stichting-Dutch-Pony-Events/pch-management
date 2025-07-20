@@ -48,7 +48,7 @@
                         </v-row>
                         <v-row no-gutters>
                             <v-col class="mr-2">
-                                <date-picker v-model="timetableItemRequest.endTime" :text-field-props="{ prependIcon: 'mdi-calendar-end', label: 'End Date', rules: rules.startDate }"></date-picker>
+                                <date-picker v-model="timetableItemRequest.endTime" :text-field-props="{ prependIcon: 'mdi-calendar-end', label: 'End Date', rules: rules.endTime }"></date-picker>
                             </v-col>
                             <v-col class="ml-2">
                                 <time-picker v-model="timetableItemRequest.endTime" :text-field-props="{ prependIcon: 'mdi-clock-end', label: 'End Time' }"></time-picker>
