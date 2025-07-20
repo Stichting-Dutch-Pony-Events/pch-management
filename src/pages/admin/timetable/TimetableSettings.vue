@@ -16,16 +16,24 @@
 import DaysOverview from "@/pages/admin/timetable/components/DaysOverview.vue"
 import LocationOverview from "@/pages/admin/timetable/components/LocationOverview.vue"
 import { type TimetableDay, TimetableLocationType } from "@/types"
-import { useHttpClient } from "@/plugins/api"
-import { type Ref, ref } from "vue"
+import { computed } from "vue"
 
-const api = useHttpClient()
-
-const timetableDays: Ref<TimetableDay[]> = ref<TimetableDay[]>([])
-void fetchTimetableDays()
-async function fetchTimetableDays(): Promise<void> {
-    timetableDays.value = await api.timetableDayService.getTimetableDays()
+interface Props {
+    days: TimetableDay[]
 }
+
+const props = withDefaults(defineProps<Props>(), {
+    days: () => [],
+})
+
+const emit = defineEmits<{
+    (e: "update:days", value: TimetableDay[]): void
+}>()
+
+const timetableDays = computed({
+    get: () => props.days,
+    set: (value: TimetableDay[]) => emit("update:days", value),
+})
 </script>
 
 <style scoped></style>

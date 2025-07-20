@@ -16,12 +16,12 @@ export const TimetableRoutes: RouteRecordRaw[] = [
         children: [
             {
                 name: "publicTimetable",
-                path: "public",
+                path: "public/:timetableDay?",
                 component: PublicTimetable,
             },
             {
                 name: "volunteerTimetable",
-                path: "volunteer",
+                path: "volunteer/:timetableDay?",
                 component: VolunteerTimetable,
             },
             {

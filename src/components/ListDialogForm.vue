@@ -45,18 +45,16 @@ import { computed, type ComputedRef, ref, type Ref } from "vue"
 import type { VForm } from "vuetify/components"
 
 interface Props {
-    dialogOpen: boolean
+    dialogOpen?: boolean
     createMode: boolean
-    formValid: boolean
+    formValid?: boolean
     typeName: string
     titleText: string
     loading: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    dialogOpen: false,
     createMode: false,
-    formValid: false,
     typeName: "",
     titleText: "",
     loading: false,
@@ -68,6 +66,9 @@ const emit = defineEmits<{
     (e: "submit-form"): void
     (e: "delete"): void
 }>()
+
+emit("update:dialog-open", false)
+emit("update:form-valid", false)
 
 const formRef: Ref<VForm | null> = ref<VForm | null>(null)
 
