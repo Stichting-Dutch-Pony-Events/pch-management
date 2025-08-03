@@ -9,6 +9,7 @@
                 <v-list-item title="Teams" prepend-icon="mdi-account-group" :to="{ name: 'TeamsOverview' }"></v-list-item>
                 <v-list-item title="Character Quiz" prepend-icon="mdi-chat-question" :to="{ name: 'QuizOverview' }"></v-list-item>
                 <v-list-item title="Timetables" prepend-icon="mdi-timeline-clock" :to="{ name: 'timetable' }"></v-list-item>
+                <v-list-item title="Attendees" prepend-icon="mdi-horse" :to="{ name: 'attendee-overview' }"></v-list-item>
             </v-list>
         </v-navigation-drawer>
 
