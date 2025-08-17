@@ -156,7 +156,9 @@ const computedLoading: ComputedRef<boolean> = computed(() => {
 })
 
 const computedProductList = computed(() => {
-    const overrideProducts = [{ id: null, title: "Do not override badge (use: " + props.attendee?.product?.name + ")" }]
+    const overrideProducts: { id: null | string; title: string }[] = [
+        { id: null, title: "Do not override badge (use: " + props.attendee?.product?.name + ")" },
+    ]
 
     if (products.value) {
         for (const product of products.value) {
