@@ -1,5 +1,13 @@
 import { HttpClientError } from "./HttpClientError"
-import { AttendeeService, ProductService, QuizService, TeamService, TimetableDayService, TimetableItemService, TimetableLocationService } from "./service/"
+import {
+    AttendeeService,
+    ProductService,
+    QuizService,
+    TeamService,
+    TimetableDayService,
+    TimetableItemService,
+    TimetableLocationService,
+} from "./service/"
 import type { ErrorResponse } from "@/types"
 import { type MessageStore, useMessageStore } from "@/plugins/pinia/message-store"
 import type { UserManager } from "oidc-client-ts"
@@ -76,6 +84,19 @@ export class HttpClient {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public async patch<T>(url: string, body: any): Promise<T> {
         return this.handleMethodWithContent<T>(url, "PATCH", body)
+    }
+
+    public async downloadFile(url: string): Promise<Blob> {
+        const response: Response = await fetch(new URL(url, this.baseUrl).toString(), {
+            method: "GET",
+            headers: {
+                "oidc-token": `Bearer ${await this.getAccessToken()}`,
+            },
+        })
+
+        await this.handleError(response)
+
+        return await response.blob()
     }
 
     public async delete<T>(url: string): Promise<T> {

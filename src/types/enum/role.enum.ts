@@ -1,0 +1,7 @@
+export enum RoleEnum {
+    USER = "ROLE_USER",
+    VOLUNTEER = "ROLE_VOLUNTEER",
+    INFOBOOTH = "ROLE_INFOBOOTH",
+    STAFF = "ROLE_STAFF",
+    SUPER_ADMIN = "ROLE_SUPER_ADMIN",
+}

@@ -9,6 +9,18 @@
                 <span v-else class="ml-2">{{ attendee.nickName }} ({{ attendee.name }})</span>
             </v-toolbar-title>
         </v-toolbar>
+
+        <v-row>
+            <v-col cols="12" sm="12" md="12" lg="6">
+                <attendee-form v-model:attendee="attendee" :loading="loading"></attendee-form>
+            </v-col>
+            <v-col cols="12" sm="12" md="6" lg="3">
+                <attendee-roles v-model="roles" :attendee="attendee"></attendee-roles>
+            </v-col>
+            <v-col cols="12" sm="12" md="6" lg="3">
+                <attendee-sidebar :attendee="attendee"></attendee-sidebar>
+            </v-col>
+        </v-row>
     </div>
 </template>
 
@@ -17,7 +29,10 @@ import { HttpClientError, useHttpClient } from "@/plugins/api"
 import { useMessageStore } from "@/plugins/pinia/message-store"
 import { useRoute } from "vue-router"
 import { computed, type ComputedRef, ref, type Ref } from "vue"
-import type { Attendee } from "@/types"
+import { type Attendee, RoleEnum } from "@/types"
+import AttendeeForm from "@/pages/admin/attendee/components/AttendeeForm.vue"
+import AttendeeRoles from "@/pages/admin/attendee/components/AttendeeRoles.vue"
+import AttendeeSidebar from "@/pages/admin/attendee/components/AttendeeSidebar.vue"
 
 const api = useHttpClient()
 const messageStore = useMessageStore()
@@ -31,6 +46,15 @@ const attendeeId: ComputedRef<string | null> = computed(() => {
 })
 
 const attendee: Ref<Attendee | null> = ref<Attendee | null>(null)
+
+const roles = computed<RoleEnum[]>({
+    get: () => attendee.value?.userRoles ?? [],
+    set: (value: RoleEnum[]) => {
+        if (attendee.value) {
+            attendee.value.userRoles = value
+        }
+    },
+})
 
 void retrieveAttendee()
 async function retrieveAttendee(): Promise<void> {
@@ -49,7 +73,11 @@ async function retrieveAttendee(): Promise<void> {
                 timeout: 5000,
             })
         } else {
-            messageStore.addMessage({ text: "An unexpected error occurred while trying to fetch the attendee.", color: "error", timeout: 5000 })
+            messageStore.addMessage({
+                text: "An unexpected error occurred while trying to fetch the attendee.",
+                color: "error",
+                timeout: 5000,
+            })
         }
     } finally {
         loading.value = false
