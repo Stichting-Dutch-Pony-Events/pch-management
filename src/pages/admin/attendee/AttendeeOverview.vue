@@ -12,7 +12,23 @@
                 <v-text-field v-model="searchRequest.query" label="Search (Name, Email, Nick name)"></v-text-field>
             </v-col>
             <v-col class="v-col-12 v-col-lg-2">
-                <v-select v-model="searchRequest.productId" :return-object="false" item-value="value" item-title="title" :items="products" label="Product"></v-select>
+                <v-select
+                    v-model="searchRequest.productId"
+                    :return-object="false"
+                    item-value="value"
+                    item-title="title"
+                    :items="products"
+                    label="Product"
+                ></v-select>
+            </v-col>
+            <v-col class="v-col-12 v-col-lg-2">
+                <v-select
+                    v-model="searchRequest.role"
+                    :items="availableRoles"
+                    item-value="value"
+                    item-title="label"
+                    label="Role"
+                ></v-select>
             </v-col>
         </v-row>
 
@@ -41,20 +57,31 @@
                 })
             "
         >
-            <template #item.actions>
+            <template #[`item.actions`]>
                 <v-btn variant="text" icon="mdi-chevron-right" density="compact"></v-btn>
+            </template>
+            <template #[`item.userRoles`]="{ item }">
+                <v-chip
+                    class="mx-1"
+                    v-for="role in item.userRoles"
+                    :key="`attendee-${item.id}-role-${role}`"
+                    :color="roleConfig[role].color"
+                >
+                    {{ roleConfig[role].label }}
+                </v-chip>
             </template>
         </v-data-table-server>
     </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, type Ref, watch } from "vue"
+import { ref, type Ref, watch } from "vue"
 import type { DataTableHeader } from "vuetify/framework"
-import type { Attendee, AttendeeSearchRequest, AttendeeSearchResponse } from "@/types"
+import { type Attendee, type AttendeeSearchRequest, type AttendeeSearchResponse, RoleEnum } from "@/types"
 import { HttpClientError, useHttpClient } from "@/plugins/api"
 import { useMessageStore } from "@/plugins/pinia/message-store"
 import { useRouter } from "vue-router"
+import { useMainStore } from "@/plugins/pinia/main-store"
 
 interface ProductSelectOption {
     title: string
@@ -72,16 +99,11 @@ function debounce<T extends (...args: any[]) => any>(func: T, delay = 300): (...
 
 const api = useHttpClient()
 const messageStore = useMessageStore()
+const mainStore = useMainStore()
 const router = useRouter()
 
 const loading: Ref<boolean> = ref(false)
-const searchRequest: AttendeeSearchRequest = reactive<AttendeeSearchRequest>({
-    query: "",
-    productId: "",
-    page: 1,
-    itemsPerPage: 10,
-    sortBy: [{ key: "name", order: "asc" }],
-})
+const searchRequest: AttendeeSearchRequest = mainStore.attendeeSearchRequest
 
 const searchResponse: Ref<AttendeeSearchResponse> = ref<AttendeeSearchResponse>({
     items: [],
@@ -101,6 +123,7 @@ const headers: DataTableHeader[] = [
     { title: "Nick Name", value: "nickName", sortable: true },
     { title: "Email", value: "email", sortable: true },
     { title: "Product", value: "product.name", sortable: true },
+    { title: "Roles", value: "userRoles" },
     { title: "Actions", value: "actions", sortable: false, align: "end" },
 ]
 
@@ -124,6 +147,14 @@ watch(
     }
 )
 
+watch(
+    () => searchRequest.role,
+    () => {
+        searchRequest.page = 1 // reset to first page on new search
+        void fetchAttendees()
+    }
+)
+
 void fetchAttendees()
 async function fetchAttendees() {
     loading.value = true
@@ -137,7 +168,11 @@ async function fetchAttendees() {
                 timeout: 5000,
             })
         } else {
-            messageStore.addMessage({ text: "An unexpected error occurred while fetching attendees.", color: "error", timeout: 5000 })
+            messageStore.addMessage({
+                text: "An unexpected error occurred while fetching attendees.",
+                color: "error",
+                timeout: 5000,
+            })
         }
     } finally {
         loading.value = false
@@ -148,7 +183,10 @@ void fetchProducts()
 async function fetchProducts() {
     try {
         const productList = await api.productService.listProducts()
-        products.value = [{ value: "", title: "All Products" }, ...productList.map((p) => ({ value: p.id, title: p.name }))]
+        products.value = [
+            { value: "", title: "All Products" },
+            ...productList.map((p) => ({ value: p.id, title: p.name })),
+        ]
 
         // If a product is selected, ensure it exists in the list
         if (searchRequest.productId && !products.value.some((p) => p.value === searchRequest.productId)) {
@@ -162,7 +200,11 @@ async function fetchProducts() {
                 timeout: 5000,
             })
         } else {
-            messageStore.addMessage({ text: "An unexpected error occurred while fetching products.", color: "error", timeout: 5000 })
+            messageStore.addMessage({
+                text: "An unexpected error occurred while fetching products.",
+                color: "error",
+                timeout: 5000,
+            })
         }
     }
 }
@@ -172,6 +214,23 @@ function selectAttendee(item: Attendee): void {
         name: "attendee-details",
         params: { attendeeId: item.id },
     })
+}
+
+const availableRoles = [
+    { value: "", label: "All Roles" },
+    { value: RoleEnum.USER, label: "Attendee" },
+    { value: RoleEnum.VOLUNTEER, label: "Volunteer" },
+    { value: RoleEnum.INFOBOOTH, label: "Info Booth Volunteer" },
+    { value: RoleEnum.STAFF, label: "Con Staff" },
+    { value: RoleEnum.SUPER_ADMIN, label: "Super Admin" },
+]
+
+const roleConfig = {
+    [RoleEnum.USER]: { label: "Attendee", color: "blue-grey" },
+    [RoleEnum.VOLUNTEER]: { label: "Volunteer", color: "lime" },
+    [RoleEnum.INFOBOOTH]: { label: "Info Booth Volunteer", color: "amber" },
+    [RoleEnum.STAFF]: { label: "Con Staff", color: "deep-orange" },
+    [RoleEnum.SUPER_ADMIN]: { label: "Super Admin", color: "pink" },
 }
 </script>
 

@@ -1,6 +1,7 @@
-import type { Attendee } from "../"
+import type { Attendee, AttendeeSearchRequest } from "../"
 
 export interface MainStoreState {
     authToken: string | null
     user: Attendee | null
+    attendeeSearchRequest: AttendeeSearchRequest
 }
