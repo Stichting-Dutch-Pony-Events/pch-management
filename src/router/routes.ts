@@ -3,6 +3,7 @@ import App from "@/App.vue"
 import { TeamRoutes } from "@/router/modules/team.routes"
 import { QuizRoutes } from "@/router/modules/quiz.routes"
 import { TimetableRoutes } from "@/pages/admin/timetable/timetable-routing.module"
+import { AttendeeRoutes } from "@/pages/admin/attendee/attendee-routing.module"
 
 const Admin = () => import("@/pages/admin/AdminDashboard.vue")
 const Login = () => import("@/pages/LoginOidc.vue")
@@ -20,7 +21,7 @@ export const routes: RouteRecordRaw[] = [
                 name: "AdminDashboard",
                 path: "admin",
                 component: Admin,
-                children: [...TeamRoutes, ...QuizRoutes, ...TimetableRoutes],
+                children: [...TeamRoutes, ...QuizRoutes, ...TimetableRoutes, ...AttendeeRoutes],
             },
             {
                 name: "LoginPage",

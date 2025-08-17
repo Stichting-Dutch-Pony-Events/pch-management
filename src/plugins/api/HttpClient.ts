@@ -1,9 +1,18 @@
 import { HttpClientError } from "./HttpClientError"
-import { AttendeeService, QuizService, TeamService, TimetableDayService, TimetableItemService, TimetableLocationService } from "./service/"
+import {
+    AttendeeService,
+    ProductService,
+    QuizService,
+    TeamService,
+    TimetableDayService,
+    TimetableItemService,
+    TimetableLocationService,
+} from "./service/"
 import type { ErrorResponse } from "@/types"
 import { type MessageStore, useMessageStore } from "@/plugins/pinia/message-store"
 import type { UserManager } from "oidc-client-ts"
 import { useUserManager } from "@/plugins/oidc-client"
+import type { BaseSearchRequest } from "@/types/requests/base-search.request"
 
 export class HttpClient {
     public messageStore: MessageStore
@@ -15,6 +24,7 @@ export class HttpClient {
     public timetableDayService: TimetableDayService
     public timetableItemService: TimetableItemService
     public timetableLocationService: TimetableLocationService
+    public productService: ProductService
 
     public constructor(public baseUrl: string) {
         this.messageStore = useMessageStore()
@@ -26,6 +36,7 @@ export class HttpClient {
         this.timetableDayService = new TimetableDayService(this)
         this.timetableLocationService = new TimetableLocationService(this)
         this.timetableItemService = new TimetableItemService(this)
+        this.productService = new ProductService(this)
     }
 
     private async getAccessToken(): Promise<string> {
@@ -73,6 +84,19 @@ export class HttpClient {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public async patch<T>(url: string, body: any): Promise<T> {
         return this.handleMethodWithContent<T>(url, "PATCH", body)
+    }
+
+    public async downloadFile(url: string): Promise<Blob> {
+        const response: Response = await fetch(new URL(url, this.baseUrl).toString(), {
+            method: "GET",
+            headers: {
+                "oidc-token": `Bearer ${await this.getAccessToken()}`,
+            },
+        })
+
+        await this.handleError(response)
+
+        return await response.blob()
     }
 
     public async delete<T>(url: string): Promise<T> {
@@ -144,5 +168,21 @@ export class HttpClient {
             })
             throw new Error(`HTTP error! status: ${response.status}`)
         }
+    }
+
+    public searchRequestToQueryParams(searchRequest: BaseSearchRequest): Record<string, string | number> {
+        const searchParams: Record<string, string | number> = {}
+
+        for (const [key, value] of Object.entries(searchRequest)) {
+            if (key === "sortBy" && Array.isArray(value)) {
+                if (value.length > 0) {
+                    searchParams.sortBy = value.map((item) => `${item.key}:${item.order || "asc"}`).join(",")
+                }
+                continue
+            }
+
+            searchParams[key] = value
+        }
+        return searchParams
     }
 }
