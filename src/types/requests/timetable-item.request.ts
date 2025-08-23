@@ -5,5 +5,5 @@ export interface TimetableItemRequest {
     description?: string | null
     startTime: string
     endTime: string
-    volunteerId?: string | null
+    volunteerId: string | null
 }

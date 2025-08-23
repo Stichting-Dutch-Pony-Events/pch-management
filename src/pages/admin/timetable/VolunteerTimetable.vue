@@ -1,5 +1,9 @@
 <template>
-    <timetable-details :timetable-location-type="TimetableLocationType.VOLUNTEER_POST" :timetable-days="props.days" />
+    <timetable-details
+        :timetable-location-type="TimetableLocationType.VOLUNTEER_POST"
+        :timetable-days="props.days"
+        :allow-attendee-attachment="true"
+    />
 </template>
 
 <script setup lang="ts">

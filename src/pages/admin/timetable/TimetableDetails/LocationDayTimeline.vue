@@ -9,7 +9,12 @@
 
         <div class="schedule-column">
             <!-- background lines -->
-            <div v-for="(interval, i) in timeIntervals" :key="'line-' + i" class="background-line" :style="{ top: `${i * 30}px` }" />
+            <div
+                v-for="(interval, i) in timeIntervals"
+                :key="'line-' + i"
+                class="background-line"
+                :style="{ top: `${i * 30}px` }"
+            />
 
             <!-- events -->
             <timetable-item-form
@@ -20,6 +25,7 @@
                 :timetable-item="event.timetableItem"
                 :top-offset="event.top"
                 :height="event.height"
+                :allow-attendee-attachment="allowAttendeeAttachment"
                 @update:timetable-item="timetableItemUpdated"
                 @delete:timetable-item="timetableItemDeleted"
             ></timetable-item-form>
@@ -37,10 +43,12 @@ interface Props {
     timetableDay: TimetableDay
     timetableLocation: TimetableLocation
     events: TimetableItem[]
+    allowAttendeeAttachment: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
     events: () => [],
+    allowAttendeeAttachment: false,
 })
 
 const emit = defineEmits<{

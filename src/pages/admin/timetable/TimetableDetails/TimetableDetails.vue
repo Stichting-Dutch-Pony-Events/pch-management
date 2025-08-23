@@ -18,6 +18,7 @@
                         :timetable-item="null"
                         :timetable-location="item.timetableLocation"
                         :timetable-day="selectedDay"
+                        :allow-attendee-attachment="allowAttendeeAttachment"
                         @timetable-item-created="timetableItemCreated"
                     >
                         <template #activator="{ props }">
@@ -32,6 +33,7 @@
                 :timetable-day="selectedDay"
                 :timetable-location="item.timetableLocation"
                 :events="item.items"
+                :allow-attendee-attachment="allowAttendeeAttachment"
                 @update:timetable-item="timetableItemUpdated"
                 @delete:timetable-item="deleteTimetableItem"
             ></location-day-timeline>
@@ -55,11 +57,13 @@ const messageStore = useMessageStore()
 interface Props {
     timetableLocationType: TimetableLocationType
     timetableDays: TimetableDay[]
+    allowAttendeeAttachment: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
     timetableLocationType: TimetableLocationType.ROOM,
     timetableDays: () => [],
+    allowAttendeeAttachment: false,
 })
 
 const locations: Ref<TimetableLocation[]> = ref<TimetableLocation[]>([])
@@ -98,7 +102,9 @@ const availableLocations: ComputedRef<LocationColumn[]> = computed(() => {
         return []
     }
 
-    const availableLocations = locations.value.filter((location) => location.timetableDays.some((day) => day.id === selectedDay.value!.id))
+    const availableLocations = locations.value.filter((location) =>
+        location.timetableDays.some((day) => day.id === selectedDay.value!.id)
+    )
     return availableLocations.map((location) => {
         return {
             timetableLocation: location,
@@ -126,7 +132,10 @@ async function fetchTimetableItems() {
 
     loading.items = true
     try {
-        timetableItems.value = await api.timetableItemService.getTimetableItems(selectedDay.value.id, props.timetableLocationType)
+        timetableItems.value = await api.timetableItemService.getTimetableItems(
+            selectedDay.value.id,
+            props.timetableLocationType
+        )
     } catch (error) {
         console.error("Failed to fetch timetable items:", error)
     } finally {

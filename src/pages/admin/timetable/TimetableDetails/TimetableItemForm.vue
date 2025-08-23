@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="dialogOpen" max-width="600px" persistent>
+    <v-dialog v-model="dialogOpen" max-width="600px">
         <template #activator="{ props: activatorProps }">
             <slot name="activator" v-bind="{ props: activatorProps }">
                 <!-- fallback if parent doesn't provide activator -->
@@ -13,8 +13,18 @@
                     }"
                 >
                     <span class="text-subtitle-1 font-weight-bold">{{ timetableItem.title }}</span>
-                    <span class="flex-grow-1 truncate-text text-body-2 font-weight-light">{{ timetableItem.description }}</span>
-                    <span class="text-caption font-weight-medium"> {{ startTime.toLocaleString(DateTime.TIME_24_SIMPLE) }} - {{ endTime.toLocaleString(DateTime.TIME_24_SIMPLE) }} </span>
+                    <span class="flex-grow-1 truncate-text text-body-2 font-weight-light">{{
+                        timetableItem.description
+                    }}</span>
+                    <div class="d-flex flex-row justify-lg-space-between">
+                        <span class="text-caption font-weight-medium">
+                            {{ startTime.toLocaleString(DateTime.TIME_24_SIMPLE) }} -
+                            {{ endTime.toLocaleString(DateTime.TIME_24_SIMPLE) }}
+                        </span>
+                        <span class="text-caption font-weight-medium" v-if="timetableItem.volunteer">
+                            {{ timetableItem.volunteer?.nickName }} ({{ timetableItem.volunteer?.name }})
+                        </span>
+                    </div>
                 </div>
             </slot>
         </template>
@@ -26,34 +36,69 @@
                         <div class="d-flex flex-row justify-space-between">
                             <v-card-title v-if="props.timetableItem === null">Create Timetable Item</v-card-title>
                             <v-card-title v-else>Edit Timetable Item</v-card-title>
-                            <confirm-dialog v-if="props.timetableItem !== null" :message="`You will be deleting the timetable item: ${props.timetableItem.title}`" @confirm="deleteTimetableItem" />
+                            <confirm-dialog
+                                v-if="props.timetableItem !== null"
+                                :message="`You will be deleting the timetable item: ${props.timetableItem.title}`"
+                                @confirm="deleteTimetableItem"
+                            />
                         </div>
                     </v-card-item>
 
                     <v-card-text>
                         <span class="d-block"><b>Day: </b> {{ timetableDay?.title ?? "Not set" }}</span>
                         <span class="d-block mb-4"><b>Location: </b> {{ timetableLocation?.title ?? "Not set" }}</span>
-                        <v-text-field v-model="timetableItemRequest.title" label="Title" counter="50" :rules="rules.title"></v-text-field>
-                        <v-textarea v-model="timetableItemRequest.description" label="Description" counter="1000" :rules="rules.description"></v-textarea>
+                        <v-text-field
+                            v-model="timetableItemRequest.title"
+                            label="Title"
+                            counter="50"
+                            :rules="rules.title"
+                        ></v-text-field>
+                        <v-textarea
+                            v-model="timetableItemRequest.description"
+                            label="Description"
+                            counter="1000"
+                            :rules="rules.description"
+                        ></v-textarea>
                         <v-row no-gutters>
                             <v-col class="mr-2">
                                 <date-picker
                                     v-model="timetableItemRequest.startTime"
-                                    :text-field-props="{ prependIcon: 'mdi-calendar-start', label: 'Start Date', rules: rules.startTime }"
+                                    :text-field-props="{
+                                        prependIcon: 'mdi-calendar-start',
+                                        label: 'Start Date',
+                                        rules: rules.startTime,
+                                    }"
                                 ></date-picker>
                             </v-col>
                             <v-col class="ml-2">
-                                <time-picker v-model="timetableItemRequest.startTime" :text-field-props="{ prependIcon: 'mdi-clock-start', label: 'Start Time' }"></time-picker>
+                                <time-picker
+                                    v-model="timetableItemRequest.startTime"
+                                    :text-field-props="{ prependIcon: 'mdi-clock-start', label: 'Start Time' }"
+                                ></time-picker>
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col class="mr-2">
-                                <date-picker v-model="timetableItemRequest.endTime" :text-field-props="{ prependIcon: 'mdi-calendar-end', label: 'End Date', rules: rules.endTime }"></date-picker>
+                                <date-picker
+                                    v-model="timetableItemRequest.endTime"
+                                    :text-field-props="{
+                                        prependIcon: 'mdi-calendar-end',
+                                        label: 'End Date',
+                                        rules: rules.endTime,
+                                    }"
+                                ></date-picker>
                             </v-col>
                             <v-col class="ml-2">
-                                <time-picker v-model="timetableItemRequest.endTime" :text-field-props="{ prependIcon: 'mdi-clock-end', label: 'End Time' }"></time-picker>
+                                <time-picker
+                                    v-model="timetableItemRequest.endTime"
+                                    :text-field-props="{ prependIcon: 'mdi-clock-end', label: 'End Time' }"
+                                ></time-picker>
                             </v-col>
                         </v-row>
+                        <attendee-select
+                            v-if="allowAttendeeAttachment"
+                            v-model="timetableItemRequest.volunteerId"
+                        ></attendee-select>
                     </v-card-text>
 
                     <template v-slot:actions>
@@ -76,6 +121,7 @@ import TimePicker from "@/components/TimePicker.vue"
 import { HttpClientError, useHttpClient } from "@/plugins/api"
 import { useMessageStore } from "@/plugins/pinia/message-store"
 import ConfirmDialog from "@/components/ConfirmDialog.vue"
+import AttendeeSelect from "@/pages/admin/attendee/components/AttendeeSelect.vue"
 
 const api = useHttpClient()
 const messageStore = useMessageStore()
@@ -86,12 +132,14 @@ interface Props {
     timetableDay: TimetableDay
     topOffset?: number
     height?: number
+    allowAttendeeAttachment: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
     timetableItem: null,
     topOffset: 0,
     height: 0,
+    allowAttendeeAttachment: false,
 })
 
 const emit = defineEmits<{
@@ -106,14 +154,28 @@ const formValid: Ref<boolean> = ref(false)
 const loading: Ref<boolean> = ref(false)
 
 const rules = {
-    title: [(v: string) => !!v || "This field is required", (v: string) => v.length >= 3 || "Minimum 3 characters", (v: string) => v.length <= 50 || "Maximum 50 characters"],
+    title: [
+        (v: string) => !!v || "This field is required",
+        (v: string) => v.length >= 3 || "Minimum 3 characters",
+        (v: string) => v.length <= 50 || "Maximum 50 characters",
+    ],
     description: [(v: string) => v.length <= 1000 || "Maximum 1000 characters"],
-    startTime: [(v: string) => !!v || "This field is required", () => startTime.value < endTime.value || "Start time must be before end time"],
-    endTime: [(v: string) => !!v || "This field is required", () => endTime.value > startTime.value || "End time must be after start time"],
+    startTime: [
+        (v: string) => !!v || "This field is required",
+        () => startTime.value < endTime.value || "Start time must be before end time",
+    ],
+    endTime: [
+        (v: string) => !!v || "This field is required",
+        () => endTime.value > startTime.value || "End time must be after start time",
+    ],
 }
 
-const startTime = computed<DateTime>((): DateTime => DateTime.fromISO(timetableItemRequest.startTime).setZone("Europe/Amsterdam"))
-const endTime = computed<DateTime>((): DateTime => DateTime.fromISO(timetableItemRequest.endTime).setZone("Europe/Amsterdam"))
+const startTime = computed<DateTime>(
+    (): DateTime => DateTime.fromISO(timetableItemRequest.startTime).setZone("Europe/Amsterdam")
+)
+const endTime = computed<DateTime>(
+    (): DateTime => DateTime.fromISO(timetableItemRequest.endTime).setZone("Europe/Amsterdam")
+)
 
 const timetableItemRequest: TimetableItemRequest = reactive({
     title: "",
@@ -122,6 +184,7 @@ const timetableItemRequest: TimetableItemRequest = reactive({
     endTime: "",
     timetableLocationId: props.timetableLocation.id,
     timetableDayId: props.timetableDay.id,
+    volunteerId: null,
 })
 
 watch(
@@ -140,6 +203,7 @@ function populateForm() {
         timetableItemRequest.endTime = props.timetableItem.endTime
         timetableItemRequest.timetableLocationId = props.timetableLocation.id
         timetableItemRequest.timetableDayId = props.timetableDay.id
+        timetableItemRequest.volunteerId = props.timetableItem.volunteer?.id ?? null
     } else {
         const endTime: string = DateTime.fromISO(props.timetableDay.startsAt).plus({ minutes: 90 }).toISO() ?? ""
 
@@ -149,6 +213,7 @@ function populateForm() {
         timetableItemRequest.endTime = endTime
         timetableItemRequest.timetableDayId = props.timetableDay.id
         timetableItemRequest.timetableLocationId = props.timetableLocation?.id
+        timetableItemRequest.volunteerId = null
     }
 }
 
@@ -167,7 +232,8 @@ async function submitForm() {
     loading.value = true
     try {
         if (props.timetableItem === null) {
-            const timetableItem: TimetableItem = await api.timetableItemService.createTimetableItem(timetableItemRequest)
+            const timetableItem: TimetableItem =
+                await api.timetableItemService.createTimetableItem(timetableItemRequest)
 
             messageStore.addMessage({
                 text: "Timetable item created successfully",
@@ -177,7 +243,10 @@ async function submitForm() {
 
             emit("timetable-item-created", timetableItem)
         } else {
-            const updatedTimetableItem: TimetableItem = await api.timetableItemService.updateTimetableItem(props.timetableItem.id, timetableItemRequest)
+            const updatedTimetableItem: TimetableItem = await api.timetableItemService.updateTimetableItem(
+                props.timetableItem.id,
+                timetableItemRequest
+            )
 
             messageStore.addMessage({
                 text: "Timetable item updated successfully",

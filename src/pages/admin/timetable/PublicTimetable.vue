@@ -1,5 +1,9 @@
 <template>
-    <timetable-details :timetable-location-type="TimetableLocationType.ROOM" :timetable-days="props.days" />
+    <timetable-details
+        :timetable-location-type="TimetableLocationType.ROOM"
+        :timetable-days="props.days"
+        :allow-attendee-attachment="false"
+    />
 </template>
 
 <script setup lang="ts">
