@@ -10,6 +10,7 @@
                     :style="{
                         top: `${props.topOffset}px`,
                         height: `${props.height}px`,
+                        'background-color': timetableItem.colour ?? '#1976d2',
                     }"
                 >
                     <span class="text-subtitle-1 font-weight-bold">{{ timetableItem.title }}</span>
@@ -95,6 +96,7 @@
                                 ></time-picker>
                             </v-col>
                         </v-row>
+                        <colour-picker v-model="timetableItemRequest.colour" class="mt-4"></colour-picker>
                         <attendee-select
                             v-if="allowAttendeeAttachment"
                             v-model="timetableItemRequest.volunteerId"
@@ -122,6 +124,7 @@ import { HttpClientError, useHttpClient } from "@/plugins/api"
 import { useMessageStore } from "@/plugins/pinia/message-store"
 import ConfirmDialog from "@/components/ConfirmDialog.vue"
 import AttendeeSelect from "@/pages/admin/attendee/components/AttendeeSelect.vue"
+import ColourPicker from "@/components/ColourPicker.vue"
 
 const api = useHttpClient()
 const messageStore = useMessageStore()
@@ -182,6 +185,7 @@ const timetableItemRequest: TimetableItemRequest = reactive({
     description: "",
     startTime: "",
     endTime: "",
+    colour: "#ff9e5a",
     timetableLocationId: props.timetableLocation.id,
     timetableDayId: props.timetableDay.id,
     volunteerId: null,

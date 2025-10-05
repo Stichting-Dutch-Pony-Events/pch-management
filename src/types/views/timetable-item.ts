@@ -6,6 +6,7 @@ export interface TimetableItem extends EntityView {
     description?: string | null
     startTime: string
     endTime: string
+    colour: string
     timetableLocationId: string
     volunteer?: Attendee | null
 }
