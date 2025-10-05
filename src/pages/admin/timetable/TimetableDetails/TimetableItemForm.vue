@@ -207,6 +207,7 @@ function populateForm() {
         timetableItemRequest.endTime = props.timetableItem.endTime
         timetableItemRequest.timetableLocationId = props.timetableLocation.id
         timetableItemRequest.timetableDayId = props.timetableDay.id
+        timetableItemRequest.colour = props.timetableItem.colour
         timetableItemRequest.volunteerId = props.timetableItem.volunteer?.id ?? null
     } else {
         const endTime: string = DateTime.fromISO(props.timetableDay.startsAt).plus({ minutes: 90 }).toISO() ?? ""
@@ -217,6 +218,7 @@ function populateForm() {
         timetableItemRequest.endTime = endTime
         timetableItemRequest.timetableDayId = props.timetableDay.id
         timetableItemRequest.timetableLocationId = props.timetableLocation?.id
+        timetableItemRequest.colour = "#ff9e5a"
         timetableItemRequest.volunteerId = null
     }
 }
