@@ -5,4 +5,5 @@ export interface Team extends EntityView {
     description: string
     identifier: string
     points: number
+    colour: string
 }

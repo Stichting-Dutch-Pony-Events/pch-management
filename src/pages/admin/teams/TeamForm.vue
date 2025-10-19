@@ -8,7 +8,11 @@
 
             <v-card-text>
                 <v-text-field v-model="teamRequest.name" label="Team Name" :rules="rules.name"></v-text-field>
-                <v-textarea v-model="teamRequest.description" label="Description" :rules="rules.description"></v-textarea>
+                <v-textarea
+                    v-model="teamRequest.description"
+                    label="Description"
+                    :rules="rules.description"
+                ></v-textarea>
                 <v-text-field
                     v-model="teamRequest.identifier"
                     label="Identifier"
@@ -16,6 +20,7 @@
                     persistent-hint
                     :rules="rules.identifier"
                 ></v-text-field>
+                <colour-picker v-model="teamRequest.colour" label="Team Colour"></colour-picker>
             </v-card-text>
 
             <v-card-actions>
@@ -33,6 +38,7 @@ import { reactive, ref, type Ref, watch } from "vue"
 import { HttpClient, useHttpClient } from "@/plugins/api"
 import { useMessageStore } from "@/plugins/pinia/message-store"
 import router from "@/router"
+import ColourPicker from "@/components/ColourPicker.vue"
 
 const api: HttpClient = useHttpClient()
 const messageStore = useMessageStore()
@@ -56,11 +62,16 @@ const teamRequest: TeamRequest = reactive<TeamRequest>({
     name: "",
     description: "",
     identifier: "",
+    colour: "",
 })
 
 const formValid: Ref<boolean> = ref(false)
 const rules = {
-    name: [(v: string) => !!v || "This field is required", (v: string) => v.length >= 3 || "Minimum 3 characters", (v: string) => v.length <= 155 || "Maximum 155 characters"],
+    name: [
+        (v: string) => !!v || "This field is required",
+        (v: string) => v.length >= 3 || "Minimum 3 characters",
+        (v: string) => v.length <= 155 || "Maximum 155 characters",
+    ],
     description: [(v: string) => v.length <= 1000 || "Maximum 1000 characters"],
     identifier: [
         (v: string) => !!v || "This field is required",
@@ -82,10 +93,12 @@ function populateRequest(): void {
         teamRequest.name = props.team.name
         teamRequest.description = props.team.description
         teamRequest.identifier = props.team.identifier
+        teamRequest.colour = props.team.colour
     } else {
         teamRequest.name = ""
         teamRequest.description = ""
         teamRequest.identifier = ""
+        teamRequest.colour = "#ff9e5a"
     }
 }
 
