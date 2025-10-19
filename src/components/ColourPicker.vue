@@ -3,7 +3,13 @@
         <template v-slot:append-inner>
             <v-icon :style="{ color: props.modelValue }" size="x-large">mdi-circle</v-icon>
         </template>
-        <v-menu v-model="pickerOpen" :close-on-content-click="false" activator="parent" transition="scale-transition">
+        <v-menu
+            v-model="pickerOpen"
+            :close-on-content-click="false"
+            :close-on-back="true"
+            activator="parent"
+            transition="scale-transition"
+        >
             <v-color-picker
                 v-model="colour"
                 class="ma-2"
