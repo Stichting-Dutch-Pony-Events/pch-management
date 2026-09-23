@@ -1,0 +1,9 @@
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: true
+
+minimumReleaseAgeExclude:
+  - magic-string@1.4.2
+
+overrides:
+  rolldown: 1.2.9

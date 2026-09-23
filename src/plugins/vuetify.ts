@@ -11,7 +11,7 @@ import "../styles/settings.scss"
 
 // Composables
 import { createVuetify } from "vuetify"
-import { VCalendar } from "vuetify/labs/VCalendar"
+import { VCalendar } from "vuetify/components"
 import LuxonAdapter from "@date-io/luxon"
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides

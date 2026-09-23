@@ -35,10 +35,13 @@
 
                         <v-divider class="mt-2"></v-divider>
                     </template>
-                    <template v-slot:selection="{ item, index }: { item: { value: RoleEnum }; index: number }">
+                    <template v-slot:selection="{ item, index }">
                         <span v-if="allRolesSelected && index === 0">All Roles</span>
-                        <v-chip v-if="!allRolesSelected && index < 2" :color="roleConfig[item.value].color">
-                            {{ roleConfig[item.value].label }}
+                        <v-chip
+                            v-if="!allRolesSelected && index < 2"
+                            :color="roleConfig[(item as { value: RoleEnum }).value].color"
+                        >
+                            {{ roleConfig[(item as { value: RoleEnum }).value].label }}
                         </v-chip>
                         <span v-if="!allRolesSelected && index === 2" class="text-grey text-caption align-self-center">
                             (+{{ selectedRoles.length - 2 }} others)
