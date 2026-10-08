@@ -89,6 +89,10 @@
                     {{ roleConfig[role].label }}
                 </v-chip>
             </template>
+            <template #[`item.backstageBadge`]="{ item }">
+                <v-icon v-if="item.backstageBadge" color="success">mdi-check-circle</v-icon>
+                <v-icon v-else color="error">mdi-close-circle</v-icon>
+            </template>
         </v-data-table-server>
     </div>
 </template>
@@ -170,6 +174,7 @@ const headers: DataTableHeader[] = [
     { title: "Email", value: "email", sortable: true },
     { title: "Product", value: "product.name", sortable: true },
     { title: "Roles", value: "userRoles" },
+    { title: "Backstage Badge", value: "backstageBadge", sortable: true },
     { title: "Actions", value: "actions", sortable: false, align: "end" },
 ]
 
