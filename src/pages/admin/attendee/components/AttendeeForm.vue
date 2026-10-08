@@ -94,15 +94,26 @@
                         ></v-text-field>
                     </v-col>
                 </v-row>
-                <v-select
-                    v-model="attendeeRequest.overrideBadgeProductId"
-                    :items="computedProductList"
-                    prepend-icon="mdi-badge-account-horizontal"
-                    label="Override Badge Product"
-                    item-value="id"
-                    item-title="title"
-                    :return-object="false"
-                ></v-select>
+                <v-row>
+                    <v-col>
+                        <v-select
+                            v-model="attendeeRequest.overrideBadgeProductId"
+                            :items="computedProductList"
+                            prepend-icon="mdi-badge-account-horizontal"
+                            label="Override Badge Product"
+                            item-value="id"
+                            item-title="title"
+                            :return-object="false"
+                        ></v-select>
+                    </v-col>
+                    <v-col>
+                        <v-checkbox
+                            v-model="attendeeRequest.backstageBadge"
+                            prepend-icon="mdi-theater"
+                            label="Backstage Access"
+                        ></v-checkbox>
+                    </v-col>
+                </v-row>
             </v-card-text>
             <v-skeleton-loader type="article, text@5, list-item-avatar" v-if="attendee === null"></v-skeleton-loader>
             <v-card-actions>
@@ -186,6 +197,7 @@ const attendeeRequest: AttendeeRequest = reactive<AttendeeRequest>({
     miniIdentifier: null,
     fireBaseToken: null,
     overrideBadgeProductId: null,
+    backstageBadge: false,
 })
 
 watch(
@@ -211,6 +223,7 @@ function populateAttendeeRequest(): void {
         attendeeRequest.miniIdentifier = props.attendee.miniIdentifier ?? null
         attendeeRequest.fireBaseToken = props.attendee.fireBaseToken ?? null
         attendeeRequest.overrideBadgeProductId = props.attendee.overrideBadgeProduct?.id ?? null
+        attendeeRequest.backstageBadge = props.attendee.backstageBadge
     }
 }
 

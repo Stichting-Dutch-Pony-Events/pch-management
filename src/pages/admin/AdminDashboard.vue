@@ -13,7 +13,7 @@
             </v-list>
         </v-navigation-drawer>
 
-        <v-main class="d-flex align-center justify-center fill-height" height="300">
+        <v-main class="d-flex fill-height">
             <v-container fluid class="fill-height flex-grow-1">
                 <router-view></router-view>
             </v-container>

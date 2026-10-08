@@ -21,4 +21,5 @@ export interface Attendee extends EntityView {
     achievements?: AttendeeAchievement[]
     product: Product | null
     overrideBadgeProduct: Product | null
+    backstageBadge: boolean
 }

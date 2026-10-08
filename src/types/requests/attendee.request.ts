@@ -12,4 +12,5 @@ export interface AttendeeRequest {
     miniIdentifier: string | null
     fireBaseToken: string | null
     overrideBadgeProductId: string | null
+    backstageBadge: boolean
 }
